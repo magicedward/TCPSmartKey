@@ -1,0 +1,213 @@
+package com.erobbing.tcpsmartkey.common;
+
+import java.util.Arrays;
+
+/**
+ * Created by zhangzhaolei on 2018/12/27.
+ */
+
+public class PackageData {
+
+    /**
+     * 16byte 消息头
+     */
+    public MsgHeader msgHeader;
+
+    // 消息体字节数组
+    //@JSONField(serialize=false)
+    public byte[] msgBodyBytes;
+
+    /**
+     * 校验码 1byte
+     */
+    public int checkSum;
+
+    public MsgHeader getMsgHeader() {
+        return msgHeader;
+    }
+
+    public void setMsgHeader(MsgHeader msgHeader) {
+        this.msgHeader = msgHeader;
+    }
+
+    public byte[] getMsgBodyBytes() {
+        return msgBodyBytes;
+    }
+
+    public void setMsgBodyBytes(byte[] msgBodyBytes) {
+        this.msgBodyBytes = msgBodyBytes;
+    }
+
+    public int getCheckSum() {
+        return checkSum;
+    }
+
+    public void setCheckSum(int checkSum) {
+        this.checkSum = checkSum;
+    }
+
+    @Override
+    public String toString() {
+        return "PackageData [msgHeader=" + msgHeader + ", msgBodyBytes=" + Arrays.toString(msgBodyBytes) + ", checkSum="
+                + checkSum + "]";
+    }
+
+    public static class MsgHeader {
+        // 消息ID
+        public int msgId;
+
+        /////// ========消息体属性
+        // byte[2-3]
+        public int msgBodyPropsField;
+        // 消息体长度
+        public int msgBodyLength;
+        // 数据加密方式
+        public int encryptionType;
+        // 是否分包,true==>有消息包封装项
+        public boolean hasSubPackage;
+        // 保留位[14-15]
+        public String reservedBit;
+        /////// ========消息体属性
+
+        // 终端手机号
+        public String terminalPhone;
+        // 流水号
+        public int flowId;
+
+        //////// =====消息包封装项
+        // byte[12-15]
+        public int packageInfoField;
+        // 消息包总数(word(16))
+        public long totalSubPackage;
+        // 包序号(word(16))这次发送的这个消息包是分包中的第几个消息包, 从 1 开始
+        public long subPackageSeq;
+        //////// =====消息包封装项
+
+        //********************************
+        //reg 注册 head 16byte
+        //byte[0-1]   消息ID word(16)
+        private int regHeadMsgID;// = "0100";
+        //byte[2-3]   消息体属性 word(16)
+        private int regHeadAttributes;// = "";
+        //bit[0-9]    消息体长度
+        private int regHeadAttributesBodyLength;// = "";
+        //bit[10-12]  数据加密方式, 此三位都为 0，表示消息体不加密;第 10 位为 1，表示消息体经过 RSA 算法加密,其它保留
+        private int regHeadAttributesEncryptionType;// = "";
+        //bit[13]   分包
+        //          1：消息体卫长消息，进行分包发送处理，具体分包信息由消息包封装项决定
+        //          0：则消息头中无消息包封装项字段
+        private boolean regHeadAttributesSubPac;// = "0";
+        //bit[14-15]  保留
+        private String regHeadAttributesReserve = "0";
+
+        //byte[4-9]   终端手机号或设备ID bcd[6]
+        private String regHeadPhoneNum = "000123456789";
+        //byte[10-11]     消息流水号 word(16) 按发送顺序从 0 开始循环累加
+        private int regHeadMsgSeq;// = "0001";
+        //byte[12-15]     消息包封装项
+        private int regHeadSubPac;// = "00000000";
+        //bit[0-1]   消息包总数(word(16)) 该消息分包后得总包数
+        private long regHeadSubPacNum;// = "00";
+        //bit[2-3]   包序号(word(16)) 从 1 开始
+        private long regHeadSubPacSeq;// = "00";
+        //********************************
+
+        public int getRegHeadMsgID() {
+            return regHeadMsgID;
+        }
+
+        public void setRegHeadMsgID(int regHeadMsgID) {
+            this.regHeadMsgID = regHeadMsgID;
+        }
+
+        public int getRegHeadAttributes() {
+            return regHeadAttributes;
+        }
+
+        public void setRegHeadAttributes(int regHeadAttributes) {
+            this.regHeadAttributes = regHeadAttributes;
+        }
+
+        public int getRegHeadAttributesBodyLength() {
+            return regHeadAttributesBodyLength;
+        }
+
+        public void setRegHeadAttributesBodyLength(int regHeadAttributesBodyLength) {
+            this.regHeadAttributesBodyLength = regHeadAttributesBodyLength;
+        }
+
+        public int getRegHeadAttributesEncryptionType() {
+            return regHeadAttributesEncryptionType;
+        }
+
+        public void setRegHeadAttributesEncryptionType(int regHeadAttributesEncryptionType) {
+            this.regHeadAttributesEncryptionType = regHeadAttributesEncryptionType;
+        }
+
+        public boolean getRegHeadAttributesSubPac() {
+            return regHeadAttributesSubPac;
+        }
+
+        public void setRegHeadAttributesSubPac(boolean regHeadAttributesSubPac) {
+            this.regHeadAttributesSubPac = regHeadAttributesSubPac;
+        }
+
+        public String getRegHeadAttributesReserve() {
+            return regHeadAttributesReserve;
+        }
+
+        public void setRegHeadAttributesReserve(String regHeadAttributesReserve) {
+            this.regHeadAttributesReserve = regHeadAttributesReserve;
+        }
+
+        public String getRegHeadPhoneNum() {
+            return regHeadPhoneNum;
+        }
+
+        public void setRegHeadPhoneNum(String terminalPhone) {
+            this.regHeadPhoneNum = regHeadPhoneNum;
+        }
+
+        public int getRegHeadMsgSeq() {
+            return regHeadMsgSeq;
+        }
+
+        public void setRegHeadMsgSeq(int regHeadMsgSeq) {
+            this.regHeadMsgSeq = regHeadMsgSeq;
+        }
+
+        public void getRegHeadSubPac(int regHeadSubPac) {
+            this.regHeadSubPac = regHeadSubPac;
+        }
+
+        public int setRegHeadSubPac() {
+            return regHeadSubPac;
+        }
+
+        public long getRegHeadSubPacNum() {
+            return regHeadSubPacNum;
+        }
+
+        public void setRegHeadSubPacNum(long regHeadSubPacNum) {
+            this.regHeadSubPacNum = regHeadSubPacNum;
+        }
+
+        public long getRegHeadSubPacSeq() {
+            return regHeadSubPacSeq;
+        }
+
+        public void setRegHeadSubPacSeq(long regHeadSubPacSeq) {
+            this.regHeadSubPacSeq = regHeadSubPacSeq;
+        }
+
+
+        @Override
+        public String toString() {
+            return "MsgHeader [msgId=" + msgId + ", msgBodyPropsField=" + msgBodyPropsField + ", msgBodyLength="
+                    + msgBodyLength + ", encryptionType=" + encryptionType + ", hasSubPackage=" + hasSubPackage
+                    + ", reservedBit=" + reservedBit + ", terminalPhone=" + terminalPhone + ", flowId=" + flowId
+                    + ", packageInfoField=" + packageInfoField + ", totalSubPackage=" + totalSubPackage
+                    + ", subPackageSeq=" + subPackageSeq + "]";
+        }
+    }
+}
