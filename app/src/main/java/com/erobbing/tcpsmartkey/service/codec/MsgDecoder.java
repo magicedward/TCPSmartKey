@@ -74,7 +74,7 @@ public class MsgDecoder {
         // [ 13_ ] 0010,0000,0000,0000(2000)(是否有子包)
         msgHeader.setHasSubPackage(((msgBodyProps & 0x2000) >> 13) == 1);
         // [14-15] 1100,0000,0000,0000(C000)(保留位)
-        msgHeader.setReservedBit(((msgBodyProps & 0xc000) >> 14) + "");
+        msgHeader.setReservedBit(((msgBodyProps & 0xc000) >> 14));
         // 消息体属性 word(16)<=================
 
         // 3. 终端手机号 bcd[6]

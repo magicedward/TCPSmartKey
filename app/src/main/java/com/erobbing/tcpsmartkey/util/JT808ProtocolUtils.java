@@ -160,4 +160,26 @@ public class JT808ProtocolUtils {
             }
         }
     }
+
+    public byte[] generateMsgHeader(String phone, int msgType, int msgBodyProps, int flowId)
+            throws Exception {
+        ByteArrayOutputStream baos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            // 1. 消息ID word(16)
+            baos.write(bitOperator.integerTo2Bytes(msgType));
+            // 2. 消息体属性 word(16)
+            baos.write(bitOperator.integerTo2Bytes(msgBodyProps));
+            // 3. 终端手机号 bcd[6]
+            baos.write(bcd8421Operater.string2Bcd(phone));
+            // 4. 消息流水号 word(16),按发送顺序从 0 开始循环累加
+            baos.write(bitOperator.integerTo2Bytes(flowId));
+            // 消息包封装项 此处不予考虑
+            return baos.toByteArray();
+        } finally {
+            if (baos != null) {
+                baos.close();
+            }
+        }
+    }
 }

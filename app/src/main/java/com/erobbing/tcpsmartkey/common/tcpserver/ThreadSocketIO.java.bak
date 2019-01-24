@@ -1,0 +1,106 @@
+package com.erobbing.tcpsmartkey.common.tcpserver;
+
+import android.content.Context;
+import android.util.Log;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+
+
+public class ThreadSocketIO implements Runnable {
+    private static final String TAG = "ThreadSocketIO";
+    private Socket client;
+    private Context context;
+
+    public ThreadSocketIO(Context context, Socket client) {
+        this.client = client;
+        this.context = context;
+    }
+
+    @Override
+    public void run() {
+        Log.d("====", "a client has connected to server!");
+        BufferedOutputStream out;
+        BufferedInputStream in;
+        try {
+            /* PC端发来的数据msg */
+            String currCMD = "";
+            out = new BufferedOutputStream(client.getOutputStream());
+            in = new BufferedInputStream(client.getInputStream());
+            TcpServer.ioThreadFlag = true;
+            while (TcpServer.ioThreadFlag) {
+                try {
+                    if (!client.isConnected()) {
+                        break;
+                    }
+                    /* 接收PC发来的数据 */
+                    Log.d("====", Thread.currentThread().getName() + "---->" + "will read......");
+                    /* 读操作命令 */
+                    currCMD = readCMDFromSocket(in);
+                    Log.d("====", Thread.currentThread().getName() + "---->" + "**currCMD ==== " + currCMD);
+
+					/* 根据命令分别处理数据 */
+                    if (currCMD.equals("1")) {
+                        out.write("OK".getBytes());
+                        out.flush();
+                    } else if (currCMD.equals("2")) {
+                        out.write("OK".getBytes());
+                        out.flush();
+                    } else if (currCMD.equals("3")) {
+                        out.write("OK".getBytes());
+                        out.flush();
+                    } else if (currCMD.equals("4")) {
+                        /* 准备接收文件数据 */
+                        try {
+                            out.write("service receive OK".getBytes());
+                            out.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    } else if (currCMD.equalsIgnoreCase("exit")) {
+                        out.write("exit ok".getBytes());
+                        out.flush();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+//			out.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (client != null) {
+                    Log.d(TAG, Thread.currentThread().getName() + "---->" + "client.close()");
+                    client.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, Thread.currentThread().getName() + "---->" + "read write error333333");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /* 读取命令 */
+    public String readCMDFromSocket(InputStream in) {
+        int MAX_BUFFER_BYTES = 2048;
+        String msg = "";
+        byte[] tempbuffer = new byte[MAX_BUFFER_BYTES];
+        try {
+            int numReadedBytes = in.read(tempbuffer, 0, tempbuffer.length);
+            msg = new String(tempbuffer, 0, numReadedBytes, "utf-8");
+            tempbuffer = null;
+        } catch (Exception e) {
+            Log.d(TcpServer.TAG, Thread.currentThread().getName() + "---->" + "readFromSocket error");
+            e.printStackTrace();
+        }
+        Log.d("====", "msg=" + msg);
+        return msg;
+    }
+}

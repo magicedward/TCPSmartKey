@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class PackageData {
 
     /**
-     * 16byte 消息头
+     * 16byte 消息头(一般是12byte)
      */
     protected MsgHeader msgHeader;
 
@@ -16,6 +16,11 @@ public class PackageData {
      * 校验码 1byte
      */
     protected int checkSum;
+
+    /**
+     * 消息体字串(本地添加)
+     */
+    private String bodyString;
 
     //@JSONField(serialize = false)
     //protected Channel channel;
@@ -44,6 +49,14 @@ public class PackageData {
         this.checkSum = checkSum;
     }
 
+    public String getBodyString() {
+        return bodyString;
+    }
+
+    public void setBodyString(String bodyString) {
+        this.bodyString = bodyString;
+    }
+
     @Override
     public String toString() {
         return "PackageData [msgHeader=" + msgHeader + ", msgBodyBytes=" + Arrays.toString(msgBodyBytes) + ", checkSum="
@@ -61,10 +74,10 @@ public class PackageData {
         protected int msgBodyLength;
         // 数据加密方式
         protected int encryptionType;
-        // 是否分包,true==>有消息包封装项
+        // 是否分包,true==>有消息包封装项//false=0
         protected boolean hasSubPackage;
         // 保留位[14-15]
-        protected String reservedBit;
+        protected int reservedBit;
         /////// ========消息体属性
 
         // 终端手机号
@@ -129,11 +142,11 @@ public class PackageData {
             this.hasSubPackage = hasSubPackage;
         }
 
-        public String getReservedBit() {
+        public int getReservedBit() {
             return reservedBit;
         }
 
-        public void setReservedBit(String reservedBit) {
+        public void setReservedBit(int reservedBit) {
             this.reservedBit = reservedBit;
         }
 
@@ -141,16 +154,16 @@ public class PackageData {
             return totalSubPackage;
         }
 
-        public void setTotalSubPackage(long totalPackage) {
-            this.totalSubPackage = totalPackage;
+        public void setTotalSubPackage(long totalSubPackage) {
+            this.totalSubPackage = totalSubPackage;
         }
 
         public long getSubPackageSeq() {
             return subPackageSeq;
         }
 
-        public void setSubPackageSeq(long packageSeq) {
-            this.subPackageSeq = packageSeq;
+        public void setSubPackageSeq(long subPackageSeq) {
+            this.subPackageSeq = subPackageSeq;
         }
 
         public int getMsgBodyPropsField() {
@@ -181,6 +194,6 @@ public class PackageData {
 
     public String toHexString() {
         return "7e" + msgHeader.getMsgId() + msgHeader.getMsgBodyPropsField() + msgHeader.getTerminalPhone()
-                + msgHeader.getFlowId() + "" + "7e";
+                + msgHeader.getFlowId() + getBodyString() + getCheckSum() + "7e";
     }
 }

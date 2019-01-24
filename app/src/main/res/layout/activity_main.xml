@@ -4,7 +4,7 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             tools:context="tv.higlobal.tcpdemo.MainActivity">
+                                             tools:context="com.erobbing.tcpsmartkey.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
         <TextView
             android:id="@+id/send_textView"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="5dp"
@@ -76,7 +76,7 @@
         <TextView
             android:id="@+id/receive_textView"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="5dp"
@@ -110,8 +110,8 @@
 
             <EditText
                 android:id="@+id/send_editText"
-                android:layout_width="240dp"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
                 android:background="#e6e6e6"
                 android:hint="请输入需要发送的信息"/>
 

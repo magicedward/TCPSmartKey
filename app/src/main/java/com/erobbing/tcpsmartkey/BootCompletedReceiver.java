@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Created by zhangzhaolei on 2018/12/25.
  */
@@ -17,6 +19,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Intent service = new Intent(context, com.erobbing.tcpsmartkey.service.TcpService.class);
             context.startService(service);
+            SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         }
     }
 }

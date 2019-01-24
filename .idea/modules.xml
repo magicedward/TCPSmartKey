@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TCPSmartKey.iml" filepath="$PROJECT_DIR$/TCPSmartKey.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/droid_to_pc/droid_to_pc.iml" filepath="$PROJECT_DIR$/droid_to_pc/droid_to_pc.iml" />
     </modules>
   </component>
 </project>
