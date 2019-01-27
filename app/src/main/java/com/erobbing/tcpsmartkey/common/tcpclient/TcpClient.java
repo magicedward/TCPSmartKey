@@ -141,7 +141,8 @@ public class TcpClient {
                     byte[] bs = new byte[length];
                     System.arraycopy(bt, 0, bs, 0, length);
 
-                    String str = new String(bs, "UTF-8");
+                    //String str = new String(bs, "UTF-8");//不用这个，乱码
+                    String str = bytes2HexString(bs);
                     //Log.e("====", "======TcpClient.receive=" + str);
                     if (str != null) {
                         if (receivedCallback != null) {
@@ -158,6 +159,20 @@ public class TcpClient {
                 Log.i(TAG, "接收失败");
             }
         }
+    }
+
+    public static String bytes2HexString(byte[] b) {
+        String r = "";
+
+        for (int i = 0; i < b.length; i++) {
+            String hex = Integer.toHexString(b[i] & 0xFF);
+            if (hex.length() == 1) {
+                hex = '0' + hex;
+            }
+            r += hex.toUpperCase();
+        }
+
+        return r;
     }
 
     /**

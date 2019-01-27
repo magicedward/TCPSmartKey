@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,6 +26,9 @@ import com.erobbing.tcpsmartkey.util.HexStringUtils;
 import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by zhangzhaolei on 2018/12/25.
@@ -35,8 +39,8 @@ public class TcpService extends Service {
     private Context mContext;
     private AlarmManager mAlarmManager;
     private String mLocationFrequency = "360000";
-    private static final String IP = "172.23.130.2";
-    private static final int PORT = 1500;
+    private static final String IP = "172.23.130.2";//"192.168.0.175";//"140.143.7.147";//"172.23.130.2";//192.168.1.238
+    private static final int PORT = 1500;//20048;//1500;
 
     private static final String REG_TMP = "7e0100002c0200000000150025002c0133373039363054372d54383038000000000000000000000000003033323931373001d4c142383838387b7e";
     //标识位,消息头尾各一个
@@ -203,7 +207,8 @@ public class TcpService extends Service {
 
     public void sendMessage(String msg) {
         if (msg != null) {
-            TcpClient.init().send(msg.getBytes());
+            //TcpClient.init().send(msg.getBytes());
+            TcpClient.init().send(hexString2Intger(msg));
         }
     }
 
@@ -363,6 +368,11 @@ public class TcpService extends Service {
 
                     sendMessage(HexStringUtils.toHexString(getAllBytes()));
                     //鉴权完毕主动上报钥匙孔状态
+                    if (true) {//reg success //body[0-1]byte flowId,body[2] boolean success=00
+                        //成功之后发送24个钥匙孔信息
+                        //上报钥匙孔状态  钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间(YY-MM-DD-hh-mm-ss 190123164147)
+                        //allKeysStatus();
+                    }
                     break;
                 //借钥匙
                 case MSG_TYPE_BORROW://暂时未定义
@@ -378,6 +388,7 @@ public class TcpService extends Service {
                     //byte[0-1]  应答流水号,对应的终端消息的流水号  WORD
                     //byte[2-3]  应答 ID,对应的终端消息的 ID  WORD
                     //byte[4]  结果,0：成功/确认；1：失败；2：消息有误；3：不支持；4：报警处理确认  BYTE
+                    allKeysStatus();
                     break;
                 //补传分包请求
                 case MSG_TYPE_SUB_PAC_REQ:
@@ -386,7 +397,14 @@ public class TcpService extends Service {
                 case MSG_TYPE_REG_RESPONSE:
                     Log.e("====", "========MSG_TYPE_REG_RESPONSE");
                     //get auth code
+                    //save auth code
+                    saveAuthCode("724b4370794e524f364d");
                     //send auth code
+                    //"7e0102000D0199999999980001 724b4370794e524f364d 337e"
+                    int check = mBitOperator.getCheckSum4JT808(mBCD8421Operater.string2Bcd("0102000D0199999999980001724b4370794e524f364d"), 0, ("0102000D0199999999980001724b4370794e524f364d".length()) / 2);
+                    Log.e("====", "=====MSG_TYPE_REG_RESPONSE=check=" + String.format("%02x", Math.abs(check)));
+                    //Log.e("====", "=====MSG_TYPE_REG_RESPONSE=check=" + Integer.toHexString(check));
+                    sendMessage("7e0102000D0199999997980001724b4370794e524f364d337e");
                     break;
                 //终端控制
                 case MSG_TYPE_SERVER_CONTROL:
@@ -488,8 +506,10 @@ public class TcpService extends Service {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if ("com.erobbing.action.PC_TO_DROID".equals(action)) {
-                String provinceId = intent.getStringExtra("province_id");
-                String cityId = intent.getStringExtra("city_id");
+                String provinceID = intent.getStringExtra("province_id");
+                int provinceId = (provinceID != null && (!"".equals(provinceID))) ? Integer.parseInt(provinceID) : 0;
+                String cityID = intent.getStringExtra("city_id");
+                int cityId = (cityID != null && (!"".equals(cityID))) ? Integer.parseInt(cityID) : 0;
                 String manufacturerId = intent.getStringExtra("manufacturer_id");
                 String shopId = intent.getStringExtra("shop_id");
                 String terminalId = intent.getStringExtra("box_id");
@@ -498,9 +518,39 @@ public class TcpService extends Service {
                         + " - manufacturerId=" + manufacturerId
                         + " - shopId=" + shopId
                         + " - terminalId=" + terminalId);
+                Log.e("====", "=======provinceID=" + HexStringUtils.intToHexStringProvinceAndCity(provinceId));
+                Log.e("====", "=======cityID=" + HexStringUtils.intToHexStringProvinceAndCity(cityId));
+                //sendMessage("7E010000180199999999980018010006338888888877777777777777777777019999999998357E");
+                //will get 7E8100000D0199999999980001001800724B4370794E524F364D1A7E
+                //int check = mBitOperator.getCheckSum4JT808(mBCD8421Operater.string2Bcd("010200060200000000150026313639333434"), 0, ("010200060200000000150026313639333434".length()) / 2);//ok
+                //Log.e("====", "=========check=" + check);
+                //allKeysStatus();
+                //7E 010000180199999999980018 01000633 88888888 77777777777777777777 019999999798 35 7E
+                sendMessage("7E0100001801999999999800180100063388888888777777777777777777770199999997983B7E");
             }
         }
     };
+
+    byte[] hexString2Intger(String str) {
+        byte[] byteTarget = new byte[str.length() / 2];
+        for (int i = 0; i < str.length() / 2; ++i)
+            byteTarget[i] = (byte) (Integer.parseInt(str.substring(i * 2, i * 2 + 2), 16) & 0xff);
+        return byteTarget;
+    }
+
+    public static String hexStr2Str(String hexStr) {
+        String str = "0123456789ABCDEF";
+        char[] hexs = hexStr.toCharArray();
+        byte[] bytes = new byte[hexStr.length() / 2];
+        int n;
+
+        for (int i = 0; i < bytes.length; i++) {
+            n = str.indexOf(hexs[2 * i]) * 16;
+            n += str.indexOf(hexs[2 * i + 1]);
+            bytes[i] = (byte) (n & 0xff);
+        }
+        return new String(bytes);
+    }
 
     private void sendd() {
         //7E010000180199999999980018010006338888888877777777777777777777019999999998357E
@@ -569,6 +619,82 @@ public class TcpService extends Service {
 
         sendMessage(HexStringUtils.toHexString(getAllBytes()));
         //sendMessage("123");
+    }
+
+    public void allKeysStatus() {
+        //time
+        //0x0817
+        String msgId = "0817";
+        String headerO = "0018019999999798";
+        //String flowId = "0019";
+        int flowId = 20;
+        //String bodyString = "0a00010013011a023912";
+        String bodyString = "0a000100" + getTimeHexString();
+        for (int i = 0; i < 24; i++) {
+            //handler.send
+            //Log.e("====", "=====flowId++=" + flowId++);
+            int ID = flowId + i;
+            String msg = msgId + headerO + String.format("%04x", ID) + "0a000100" + getTimeHexString();//bodyString;
+            int check = mBitOperator.getCheckSum4JT808(
+                    mBCD8421Operater.string2Bcd(msg), 0, (msg.length() / 2));
+            String checkSum = String.format("%02x", Math.abs(check));
+            //Log.e("====", "=====MSG_TYPE_REG_RESPONSE=check=" + String.format("%02x", Math.abs(check)));
+            Log.e("====", "=========checkSum=" + checkSum);
+            sendMessage(MSG_FLAG + msg + checkSum + MSG_FLAG);
+            try {
+                Thread.sleep(100L);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String getTimeHexString() {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
+        String time = format.format(date);
+        Log.e("====", "======time=" + time);//19-01-26 02:35:00
+        Calendar calendar = Calendar.getInstance();
+        int year = Integer.parseInt((calendar.get(Calendar.YEAR) + "").substring(2, 4));
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DATE);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+        Log.e("====", "=====year=" + year + "*month=" + month + "*day=" + day + "*hour=" + hour + "*minute=" + minute + "*second=" + second);
+        Log.e("====", "======" + String.format("%02x", year));
+        Log.e("====", "======" + String.format("%02x", month));
+        Log.e("====", "======" + String.format("%02x", day));
+        Log.e("====", "======" + String.format("%02x", hour));
+        Log.e("====", "======" + String.format("%02x", minute));
+        Log.e("====", "======" + String.format("%02x", second));
+        return String.format("%02x", year) + String.format("%02x", month) + String.format("%02x", day)
+                + String.format("%02x", hour) + String.format("%02x", minute) + String.format("%02x", second);
+    }
+
+    public String getKeyStatus() {
+        int[] status = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        int toHexStatus = 0;
+        for (int i = 0; i < 24; i++) {
+            toHexStatus += status[i] << i;
+        }
+        //String.format("%08x", xx);
+        Log.e("====", "=========toHexStatus=" + String.format("%08x", toHexStatus));
+        return String.format("%08x", toHexStatus);
+    }
+
+    public void saveAuthCode(String code) {
+        SharedPreferences sp = mContext.getSharedPreferences("config", Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putString("auth_code", code);
+        ed.commit();
+    }
+
+    public String hexStringChecksum(String msg) {
+        int check = mBitOperator.getCheckSum4JT808(
+                mBCD8421Operater.string2Bcd(msg), 0, (msg.length() / 2));
+        String checkSum = String.format("%02x", Math.abs(check));
+        return checkSum;
     }
 
     //终端普通应答
