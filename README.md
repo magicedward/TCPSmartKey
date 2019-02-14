@@ -1,5 +1,5 @@
 # jt-808-protocol
-
+https://192.168.1.2/svn/Proprietary/SmartKey
 实在抱歉，这是最后一次受邀更新该项目。
 
 本人已于半年前换工作，新工作中不再接触808相关的代码。

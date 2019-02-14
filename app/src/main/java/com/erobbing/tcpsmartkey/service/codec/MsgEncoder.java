@@ -101,7 +101,7 @@ public class MsgEncoder {
         return this.doEncode(headerAndBody, checkSum);
     }
 
-    private byte[] doEncode(byte[] headerAndBody, int checkSum) throws Exception {
+    public byte[] doEncode(byte[] headerAndBody, int checkSum) throws Exception {
         byte[] noEscapedBytes = this.bitOperator.concatAll(Arrays.asList(//
                 new byte[]{TPMSConsts.pkg_delimiter}, // 0x7e
                 headerAndBody, // 消息头+ 消息体

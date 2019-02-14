@@ -79,7 +79,36 @@ public class JT808ProtocolUtils {
             }
         }
     }
+    public byte[] doEscape4ReceiveBetween(byte[] bs, int start, int end) throws Exception {
+        if (start < 0 || end > bs.length)
+            throw new ArrayIndexOutOfBoundsException("doEscape4Receive error : index out of bounds(start=" + start
+                    + ",end=" + end + ",bytes length=" + bs.length + ")");
+        ByteArrayOutputStream baos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            
+            for (int i = start; i < end; i++) {
+                if (bs[i] == 0x7d && bs[i + 1] == 0x01) {
+                    baos.write(0x7d);
+                    i++;
+                } else if (bs[i] == 0x7d && bs[i + 1] == 0x02) {
+                    baos.write(0x7e);
+                    i++;
+                } else {
+                    baos.write(bs[i]);
+                }
+            }
 
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (baos != null) {
+                baos.close();
+                baos = null;
+            }
+        }
+    }
     /**
      * 发送消息时转义<br>
      * <p>

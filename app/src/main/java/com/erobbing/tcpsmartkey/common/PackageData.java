@@ -80,7 +80,7 @@ public class PackageData {
         protected int reservedBit;
         /////// ========消息体属性
 
-        // 终端手机号
+        // 终端手机号(箱子id)
         protected String terminalPhone;
         // 流水号
         protected int flowId;

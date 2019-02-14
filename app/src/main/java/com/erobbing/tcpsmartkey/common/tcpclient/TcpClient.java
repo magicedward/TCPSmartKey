@@ -2,16 +2,21 @@ package com.erobbing.tcpsmartkey.common.tcpclient;
 
 import android.util.Log;
 
+import com.erobbing.sdk.local_config.LocalConfigParser;
+import com.erobbing.sdk.model.DiagControl;
+import com.erobbing.sdk.parse.ParserListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by zhangzhaolei on 2018/12/25.
  */
 
-public class TcpClient {
+public class TcpClient implements ParserListener {
     private static TcpClient instance;
     private static final String TAG = "TcpClient";
     //    Socket
@@ -35,7 +40,11 @@ public class TcpClient {
     //    构造函数私有化
     private TcpClient() {
         super();
+        mLocalConfigParser = new LocalConfigParser();
+        mLocalConfigParser.setListener(this);
     }
+
+    private LocalConfigParser mLocalConfigParser;
 
     //    提供一个全局的静态方法
     public static TcpClient init() {//sharedCenter
@@ -62,6 +71,7 @@ public class TcpClient {
             public void run() {
                 try {
                     socket = new Socket(ipAddress, port);
+                    socket.setTcpNoDelay(true);
                     socket.setSoTimeout(60 * 1000);//设置超时时间
                     if (isConnected()) {
                         TcpClient.init().ipAddress = ipAddress;
@@ -144,9 +154,17 @@ public class TcpClient {
                     //String str = new String(bs, "UTF-8");//不用这个，乱码
                     String str = bytes2HexString(bs);
                     //Log.e("====", "======TcpClient.receive=" + str);
+                    try {
+                        //mLocalConfigParser.parse(bs);
+                    } catch (Exception e) {
+                        Log.e("====", "===========mLocalConfigParser-err", e);
+                    }
+
                     if (str != null) {
                         if (receivedCallback != null) {
-                            receivedCallback.callback(str);
+                            //receivedCallback.callback(str);
+                            Log.e("====", "=======str=" + str);
+                            searchAllSubString(str.toLowerCase());
                         }
                     }
                     Log.i(TAG, "接收成功");
@@ -235,5 +253,40 @@ public class TcpClient {
         connectedCallback = null;
         disconnectedCallback = null;
         receivedCallback = null;
+    }
+
+    @Override
+    public void onGotPackage(DiagControl dc) {
+        Log.e("====", "=====DiagControl=" + dc.getPhoneNum());
+        String recMsg = bytes2HexString(dc.toByteArray());
+        if (recMsg != null) {
+            if (receivedCallback != null) {
+                receivedCallback.callback(recMsg);
+            }
+        }
+    }
+
+    private void searchAllSubString(String recString) {
+        if (recString != null) {
+            //String sss = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
+            String key = "7e";
+            int a = recString.indexOf(key);//first index
+            int count = 0;
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            while (a != -1) {
+                Log.e("====", "====a=" + a + "\t");
+                Log.e("====", "====count=" + ++count);
+                list.add(a);
+                a = recString.indexOf(key, a + 1);//the next index from first index
+            }
+            int subStrCount = list.size() / 2;
+            Log.e("====", "==========while end--list.size=" + list.size());
+            for (int i = 0; i < subStrCount; i++) {
+                //String subString = sss.substring(list.get(i * 2) + 2, list.get(i * 2 + 1) - 2);
+                String subString = recString.substring(list.get(i * 2), list.get(i * 2 + 1) + 2);
+                Log.e("====", "=========subString=" + subString);
+                receivedCallback.callback(subString);
+            }
+        }
     }
 }

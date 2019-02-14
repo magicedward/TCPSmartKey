@@ -12,7 +12,7 @@ import java.util.Hashtable;
 public class MyLogger {
     private final static boolean logFlag = true;
 
-    public final static String tag = "@quhuabo@";
+    public final static String tag = "droid_to_pc";
     private final static int logLevel = Log.VERBOSE;
     private static Hashtable<String, MyLogger> sLoggerTable = new Hashtable<String, MyLogger>();
     private String mClassName;

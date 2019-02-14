@@ -62,4 +62,9 @@ public class HexStringUtils {
         System.out.println("十六进制字符串:" + hex);
         System.out.println("还原:" + decode);
     }*/
+
+    public static String intToHexStringProvinceAndCity(int num) {
+        //String str = Integer.toHexString(in);
+        return String.format("%04x", num);
+    }
 }

@@ -1,9 +1,14 @@
 package com.erobbing.tcpsmartkey;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -13,15 +18,68 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.erobbing.smartkey.aidl.IMotorControl;
 import com.erobbing.tcpsmartkey.common.tcpclient.TcpClient;
+import com.erobbing.tcpsmartkey.service.codec.MsgEncoder;
+import com.erobbing.tcpsmartkey.util.BCD8421Operater;
+import com.erobbing.tcpsmartkey.util.BitOperator;
+import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     public EditText editText;
     public TextView textView_send;
     public TextView textView_receive;
+
+    private BitOperator mBitOperator;
+    private BCD8421Operater mBCD8421Operater;
+    private JT808ProtocolUtils mJT808ProtocolUtils;
+    private MsgEncoder mMsgEncoder;
+
+    private static final String IP = "140.143.7.147";//"192.168.0.175";//"140.143.7.147";//"172.23.130.2";
+    private static final int PORT = 20048;//20048;//1500;
+
+    private String tmpPhoneId = "010000090910";
+    private String tmpKeyId = "000000090901";
+
+    private IMotorControl iMotorControl;
+    //private IMotorControl.Stub iMotorControl;
+    private boolean serviceConnected;
+
+    private static final String LED_SERIES_01 = "/sys/class/leds/led-ct-01/brightness";
+    //private static final String LED_SERIES_01 = "/sys/devices/soc.0/gpio-leds.70/leds/led-ct-01/brightness";
+    private static final String LED_SERIES_02 = "/sys/devices/soc.0/gpio-leds.70/leds/led-ct-02/brightness";
+    private static final String LED_SERIES_03 = "/sys/devices/soc.0/gpio-leds.70/leds/led-ct-03/brightness";
+    private static final String LED_RED_01 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-01/brightness";
+    private static final String LED_RED_02 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-02/brightness";
+    private static final String LED_RED_03 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-03/brightness";
+    private static final String LED_RED_04 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-04/brightness";
+    private static final String LED_RED_05 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-05/brightness";
+    private static final String LED_RED_06 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-06/brightness";
+    private static final String LED_RED_07 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-07/brightness";
+    private static final String LED_RED_08 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-08/brightness";
+    private static final String LED_RED_09 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-09/brightness";
+    private static final String LED_RED_10 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-10/brightness";
+    private static final String LED_GREEN_01 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-01/brightness";
+    private static final String LED_GREEN_02 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-02/brightness";
+    private static final String LED_GREEN_03 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-03/brightness";
+    private static final String LED_GREEN_04 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-04/brightness";
+    private static final String LED_GREEN_05 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-05/brightness";
+    private static final String LED_GREEN_06 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-06/brightness";
+    private static final String LED_GREEN_07 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-07/brightness";
+    private static final String LED_GREEN_08 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-08/brightness";
+    private static final String LED_GREEN_09 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-09/brightness";
+    private static final String LED_GREEN_10 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-10/brightness";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         textView_receive.setMovementMethod(ScrollingMovementMethod.getInstance());
         Intent service = new Intent(this, com.erobbing.tcpsmartkey.service.TcpService.class);
         startService(service);
-        TcpClient.init().setDisconnectedCallback(new TcpClient.OnServerDisconnectedCallbackBlock() {
+        /*TcpClient.init().setDisconnectedCallback(new TcpClient.OnServerDisconnectedCallbackBlock() {
             @Override
             public void callback(IOException e) {
                 //textView_receive.setText(textView_receive.getText().toString() + "断开连接" + "\n");
@@ -56,26 +114,93 @@ public class MainActivity extends AppCompatActivity {
                 //textView_receive.setText(textView_receive.getText().toString() + receicedMessage + "\n");
                 Log.e("====", "==========receive=" + receicedMessage + "\n");
             }
-        });
+        });*/
 
 
         //serverThread = new ServerThread();
         //serverThread.start();
-
-
+        mBitOperator = new BitOperator();
+        mBCD8421Operater = new BCD8421Operater();
+        mJT808ProtocolUtils = new JT808ProtocolUtils();
+        mMsgEncoder = new MsgEncoder();
+        //bindService();
+        //patternMatch();
+        //countStr();
+        String sss = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
+        //searchAllSubString(sss);
     }
 
     public void sendMessage(View view) {
         String msg = "7e000200000200000000150003327e";//editText.getText().toString();
-        String msg1 = "7E010000180199999999980018010006338888888877777777777777777777019999999998357E";
+        String msg1 = "7E010000180199999999980018010006338888888877777777777777777777019999999798357E";
+        String ttString = "0102000A019999999991001936345A33627742544A70";
+        /*int checkint = mBitOperator.getCheckSum4JT808(
+                mBCD8421Operater.string2Bcd("000200000200000000150003"), 0, (ttString.length() / 2));
+        Log.e("====", "=========activity.checkint=" + checkint);
+        try {
+            if (ttString != null) {
+                TcpClient.init().send(mMsgEncoder.doEncode(hexString2Intger(ttString), checkint));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
+
         //7E8100000D0199999999980001001800724B4370794E524F364D1A7E
         textView_send.setText("");
         textView_send.setText(textView_send.getText().toString() + msg + "\n");
-        TcpClient.init().send(msg1.getBytes());
+        //TcpClient.init().send(msg1.getBytes());
+        //Log.e("====", "======aa=" + (5 << 1) + "--" + (5 >> 1));
+        //computeKeyStatus();
+        //getTimeHexString();
+        Log.e("====", "======getTimeHex=" + getTimeHexString());
+    }
+
+    byte[] hexString2Intger(String str) {
+        byte[] byteTarget = new byte[str.length() / 2];
+        for (int i = 0; i < str.length() / 2; ++i)
+            byteTarget[i] = (byte) (Integer.parseInt(str.substring(i * 2, i * 2 + 2), 16) & 0xff);
+        return byteTarget;
+    }
+
+    public String getTimeHexString() {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
+        String time = format.format(date);
+        Log.e("====", "======time=" + time);//19-01-26 02:35:00
+        Calendar calendar = Calendar.getInstance();
+        int year = Integer.parseInt((calendar.get(Calendar.YEAR) + "").substring(2, 4));
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DATE);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+        Log.e("====", "=====year=" + year + "*month=" + month + "*day=" + day + "*hour=" + hour + "*minute=" + minute + "*second=" + second);
+        Log.e("====", "======" + String.format("%02x", year));
+        Log.e("====", "======" + String.format("%02x", month));
+        Log.e("====", "======" + String.format("%02x", day));
+        Log.e("====", "======" + String.format("%02x", hour));
+        Log.e("====", "======" + String.format("%02x", minute));
+        Log.e("====", "======" + String.format("%02x", second));
+        return String.format("%02x", year) + String.format("%02x", month) + String.format("%02x", day)
+                + String.format("%02x", hour) + String.format("%02x", minute) + String.format("%02x", second);
+    }
+
+    public String computeKeyStatus() {
+        int[] status = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        int toHexStatus = 0;
+        for (int i = 0; i < 24; i++) {
+            toHexStatus += status[i] << i;
+        }
+        //String.format("%08x", xx);
+        Log.e("====", "=======toHexStatus=" + String.format("%08x", toHexStatus));
+        return String.format("%08x", toHexStatus);
     }
 
     public void connect(View view) {
-        TcpClient.init().connect("172.23.130.2", 1500);
+        TcpClient.init().connect(IP, PORT);
+        //TcpClient.init().connect("140.143.7.147", 20048);
+        //TcpClient.init().connect("192.168.0.175", 20048);
         Log.e("====", "============connect(View view)");
     }
 
@@ -84,11 +209,86 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear1(View view) {
-        textView_send.setText("");
+        /*textView_send.setText("");
+        String msg = "010000180199999999980018010006338888888877777777777777777777019999999598";
+        int check = mBitOperator.getCheckSum4JT808(
+                mBCD8421Operater.string2Bcd(msg), 0, (msg.length() / 2));
+        String checkSum = String.format("%02x", check);
+        Log.e("====", "===========mainactivity.checkSum=" + checkSum);*/
+        //motor01StatusCtrl(true);
+        //ledSeriesCtrl(LED_SERIES_01, true);
+        /*if (serviceConnected) {
+            try {
+                iMotorControl.setMotorStatus(false);
+                //iMotorControl.getMotorStatus();
+                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
+    }
+
+    public void motor01StatusCtrl(boolean on) {
+        try {
+            FileWriter command = new FileWriter("/sys/class/gpio_switch/motor_ct_01");
+            if (on) {
+                command.write("on");
+            } else {
+                command.write("off");
+            }
+            //command.write("\n");
+            command.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ledSeriesCtrl(String path, boolean on) {
+        try {
+            //SWITCH_04_PATH
+            FileWriter command = new FileWriter(path);
+            if (on) {
+                command.write("255");
+            } else {
+                command.write("0");
+                //playFromRawFile(mContext, R.raw.key_insert);
+            }
+            //command.write("\n");
+            command.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void clear2(View view) {
         textView_receive.setText("");
+        /*String ttString = "0100001e" + tmpPhoneId + "0018010006338888888877777777777777777777" + tmpKeyId + "990000000000";
+        int checkint = mBitOperator.getCheckSum4JT808(
+                mBCD8421Operater.string2Bcd(ttString), 0, (ttString.length() / 2));
+        try {
+            TcpClient.init().send(mMsgEncoder.doEncode(hexString2Intger(ttString), checkint));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+        //motor01StatusCtrl(false);
+        //ledSeriesCtrl(LED_SERIES_01, false);
+        /*if (serviceConnected) {
+            try {
+                iMotorControl.setMotorStatus(true);
+                //iMotorControl.getMotorStatus();
+                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
+        clearAuthCode();
+    }
+
+    public void clearAuthCode() {
+        SharedPreferences sp = this.getSharedPreferences("config", Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putString("auth_code", "unknown");
+        ed.commit();
     }
 
 
@@ -110,49 +310,76 @@ public class MainActivity extends AppCompatActivity {
         //serverThread.setIsLoop(false);
     }
 
-    /*class ServerThread extends Thread {
-
-        boolean isLoop = true;
-
-        public void setIsLoop(boolean isLoop) {
-            this.isLoop = isLoop;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            iMotorControl = IMotorControl.Stub.asInterface(service);
+            serviceConnected = true;
         }
 
         @Override
-        public void run() {
-            Log.d("====", "socket running");
+        public void onServiceDisconnected(ComponentName name) {
+            serviceConnected = false;
+        }
+    };
 
-            ServerSocket serverSocket = null;
-            try {
-                serverSocket = new ServerSocket(10086);
-                while (isLoop) {
-                    Socket socket = serverSocket.accept();
+    private void bindService() {
+        Intent intent = new Intent();
+        intent.setPackage("com.erobbing.smartkey.aidl");
+        intent.setAction("com.erobbing.action.smartkey.aidl");
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 
-                    Log.d("====", "socket accept");
+    public void patternMatch() {
+        /*Matcher matcher = Pattern.compile("(?<=(<!log>))[\\w\\W]*(?=(<\\?log>))")
+                .matcher("<!log>22222222222\n222222222222222<?log>");
 
-                    DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                    DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-                    while (isLoop) {
-                        outputStream.writeUTF("test data");
-                        Log.d("====", "send data");
-                        Thread.sleep(1000);
-                    }
-                    socket.close();
-                }
+        while (matcher.find()) {
+            System.out.println(matcher.group(0));
+            Log.e("====", "==========matcher.group(0)=" + matcher.group(0));
+        }*/
+        /*String log = "<!log>111111111111111111111111111111111111111<?log>";
+        Pattern log_ptn = Pattern.compile("<!log>([\\s\\S]+)<\\?log>");
+        Matcher log_m = log_ptn.matcher(log);
+        while (log_m.find()) {
+            System.out.println("log = " + log_m.group(1));
+        }*/
+        String log = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
+        Pattern log_ptn = Pattern.compile("7e([\\s\\S]+)7e");
+        Matcher log_m = log_ptn.matcher(log);
+        while (log_m.find()) {
+            //System.out.println("log = " + log_m.group(1));
+            Log.e("====", "==========log_m.group(1)=" + log_m.group(1));
+        }
+    }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                Log.d("====", "socket destory");
+    public void countStr() {
+        String sss = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
+        int in = sss.indexOf("7e");
+        int lastin = sss.lastIndexOf("7e");
+        Log.e("====", "====in=" + in + "--lastin=" + lastin);
+    }
 
-                if (serverSocket != null) {
-                    try {
-                        serverSocket.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+    private void searchAllSubString(String recString) {
+        if (recString != null) {
+            //String sss = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
+            String key = "7e";
+            int a = recString.indexOf(key);//*第一个出现的索引位置
+            int count = 0;
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            while (a != -1) {
+                Log.e("====", "====a=" + a + "\t");
+                Log.e("====", "====count=" + ++count);
+                list.add(a);
+                a = recString.indexOf(key, a + 1);//*从这个索引往后开始第一个出现的位置
+            }
+            int subStrCount = list.size() / 2;
+            Log.e("====", "==========while end--list.size=" + list.size());
+            for (int i = 0; i < subStrCount; i++) {
+                //String subString = sss.substring(list.get(i * 2) + 2, list.get(i * 2 + 1) - 2);
+                String subString = recString.substring(list.get(i * 2), list.get(i * 2 + 1) + 2);
+                Log.e("====", "=========subString=" + subString);
             }
         }
-    }*/
+    }
 }
