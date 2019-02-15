@@ -26,6 +26,7 @@ enum Cmd {
     cmdUnregisterBox = 4; // 箱注销
 
     cmdUnregisterKey = 5; // 扣注销
+    cmdClearAuthCode = 6; //清除鉴权码
 
 }
 
@@ -36,7 +37,7 @@ message Config {
     string keyID = 3; // 钥匙扣ID
     string shopID = 4; // 店ID
     bool boxRegisted = 5; // 箱是否注册
-	string provinceID = 6; // 省
-	string cityID = 7; // 市
-	string manufacturerID = 8; // 制造商
+    string provinceID = 6; // 省
+    string cityID = 7; // 市
+    string manufacturerID = 8; // 制造商
 };

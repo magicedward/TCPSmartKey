@@ -170,6 +170,14 @@ public final class AdbConfigDemo {
      * <code>cmdUnregisterKey = 5;</code>
      */
     cmdUnregisterKey(5),
+    /**
+     * <pre>
+     *清除鉴权码
+     * </pre>
+     *
+     * <code>cmdClearAuthCode = 6;</code>
+     */
+    cmdClearAuthCode(6),
     UNRECOGNIZED(-1),
     ;
 
@@ -217,6 +225,14 @@ public final class AdbConfigDemo {
      * <code>cmdUnregisterKey = 5;</code>
      */
     public static final int cmdUnregisterKey_VALUE = 5;
+    /**
+     * <pre>
+     *清除鉴权码
+     * </pre>
+     *
+     * <code>cmdClearAuthCode = 6;</code>
+     */
+    public static final int cmdClearAuthCode_VALUE = 6;
 
 
     public final int getNumber() {
@@ -243,6 +259,7 @@ public final class AdbConfigDemo {
         case 3: return cmdRegisterBox;
         case 4: return cmdUnregisterBox;
         case 5: return cmdUnregisterKey;
+        case 6: return cmdClearAuthCode;
         default: return null;
       }
     }
@@ -1894,10 +1911,11 @@ public final class AdbConfigDemo {
       "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin" +
       "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur" +
       "erID\030\010 \001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMO" +
-      "N_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*{\n\003Cmd\022\r\n\tcmd" +
-      "_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWriteC" +
-      "onfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnregi" +
-      "sterBox\020\004\022\024\n\020cmdUnregisterKey\020\005b\006proto3"
+      "N_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcm" +
+      "d_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWrite" +
+      "Config\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnreg" +
+      "isterBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdC",
+      "learAuthCode\020\006b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

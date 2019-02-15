@@ -71,12 +71,13 @@ enum Cmd {
   cmdRegisterBox = 3,
   cmdUnregisterBox = 4,
   cmdUnregisterKey = 5,
+  cmdClearAuthCode = 6,
   Cmd_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   Cmd_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool Cmd_IsValid(int value);
 const Cmd Cmd_MIN = cmd_dummy;
-const Cmd Cmd_MAX = cmdUnregisterKey;
+const Cmd Cmd_MAX = cmdClearAuthCode;
 const int Cmd_ARRAYSIZE = Cmd_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Cmd_descriptor();
