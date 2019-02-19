@@ -40,4 +40,9 @@ message Config {
     string provinceID = 6; // 省
     string cityID = 7; // 市
     string manufacturerID = 8; // 制造商
+    string ip = 9;
+    string ipmask = 10;
+    string dns1 = 11;
+    string dns2 = 12;
+    string gateway = 13 ;
 };

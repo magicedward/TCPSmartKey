@@ -40,7 +40,7 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
       "adb_config_demo.proto");
   GOOGLE_CHECK(file != NULL);
   Config_descriptor_ = file->message_type(0);
-  static const int Config_offsets_[8] = {
+  static const int Config_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, errorcode_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, boxid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keyid_),
@@ -49,6 +49,11 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, provinceid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, cityid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, manufacturerid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, ip_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, ipmask_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, dns1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, dns2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, gateway_),
   };
   Config_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -105,16 +110,18 @@ void protobuf_AddDesc_adb_5fconfig_5fdemo_2eproto_impl() {
   protobuf_InitDefaults_adb_5fconfig_5fdemo_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025adb_config_demo.proto\022\034com.erobbing.ad"
-    "b_config_demo\"\232\001\n\006Config\022\021\n\terrorCode\030\001 "
+    "b_config_demo\"\343\001\n\006Config\022\021\n\terrorCode\030\001 "
     "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho"
     "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin"
     "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur"
-    "erID\030\010 \001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMO"
-    "N_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcm"
-    "d_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWrite"
-    "Config\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnreg"
-    "isterBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdC"
-    "learAuthCode\020\006b\006proto3", 422);
+    "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014"
+    "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r "
+    "\001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMON_ERROR"
+    "\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcmd_dummy"
+    "\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWriteConfig\020"
+    "\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnregisterBo"
+    "x\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdClearAut"
+    "hCode\020\006b\006proto3", 495);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "adb_config_demo.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_adb_5fconfig_5fdemo_2eproto);
@@ -187,6 +194,11 @@ const int Config::kBoxRegistedFieldNumber;
 const int Config::kProvinceIDFieldNumber;
 const int Config::kCityIDFieldNumber;
 const int Config::kManufacturerIDFieldNumber;
+const int Config::kIpFieldNumber;
+const int Config::kIpmaskFieldNumber;
+const int Config::kDns1FieldNumber;
+const int Config::kDns2FieldNumber;
+const int Config::kGatewayFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Config::Config()
@@ -214,6 +226,11 @@ void Config::SharedCtor() {
   provinceid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   cityid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   manufacturerid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ipmask_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns1_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns2_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  gateway_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&errorcode_, 0, reinterpret_cast<char*>(&boxregisted_) -
     reinterpret_cast<char*>(&errorcode_) + sizeof(boxregisted_));
   _cached_size_ = 0;
@@ -231,6 +248,11 @@ void Config::SharedDtor() {
   provinceid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   cityid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   manufacturerid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ip_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ipmask_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns1_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns2_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  gateway_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void Config::SetCachedSize(int size) const {
@@ -283,6 +305,11 @@ void Config::Clear() {
   provinceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   cityid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   manufacturerid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ipmask_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  dns2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  gateway_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 
 #undef ZR_HELPER_
 #undef ZR_
@@ -426,6 +453,91 @@ bool Config::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(74)) goto parse_ip;
+        break;
+      }
+
+      // optional string ip = 9;
+      case 9: {
+        if (tag == 74) {
+         parse_ip:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_ip()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->ip().data(), this->ip().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.ip"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(82)) goto parse_ipmask;
+        break;
+      }
+
+      // optional string ipmask = 10;
+      case 10: {
+        if (tag == 82) {
+         parse_ipmask:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_ipmask()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->ipmask().data(), this->ipmask().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.ipmask"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(90)) goto parse_dns1;
+        break;
+      }
+
+      // optional string dns1 = 11;
+      case 11: {
+        if (tag == 90) {
+         parse_dns1:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_dns1()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->dns1().data(), this->dns1().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.dns1"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(98)) goto parse_dns2;
+        break;
+      }
+
+      // optional string dns2 = 12;
+      case 12: {
+        if (tag == 98) {
+         parse_dns2:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_dns2()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->dns2().data(), this->dns2().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.dns2"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(106)) goto parse_gateway;
+        break;
+      }
+
+      // optional string gateway = 13;
+      case 13: {
+        if (tag == 106) {
+         parse_gateway:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_gateway()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->gateway().data(), this->gateway().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.gateway"));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -524,6 +636,56 @@ void Config::SerializeWithCachedSizes(
       8, this->manufacturerid(), output);
   }
 
+  // optional string ip = 9;
+  if (this->ip().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->ip().data(), this->ip().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.ip");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      9, this->ip(), output);
+  }
+
+  // optional string ipmask = 10;
+  if (this->ipmask().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->ipmask().data(), this->ipmask().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.ipmask");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      10, this->ipmask(), output);
+  }
+
+  // optional string dns1 = 11;
+  if (this->dns1().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->dns1().data(), this->dns1().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.dns1");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      11, this->dns1(), output);
+  }
+
+  // optional string dns2 = 12;
+  if (this->dns2().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->dns2().data(), this->dns2().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.dns2");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      12, this->dns2(), output);
+  }
+
+  // optional string gateway = 13;
+  if (this->gateway().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->gateway().data(), this->gateway().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.gateway");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      13, this->gateway(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:com.erobbing.adb_config_demo.Config)
 }
 
@@ -607,6 +769,61 @@ void Config::SerializeWithCachedSizes(
         8, this->manufacturerid(), target);
   }
 
+  // optional string ip = 9;
+  if (this->ip().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->ip().data(), this->ip().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.ip");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        9, this->ip(), target);
+  }
+
+  // optional string ipmask = 10;
+  if (this->ipmask().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->ipmask().data(), this->ipmask().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.ipmask");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        10, this->ipmask(), target);
+  }
+
+  // optional string dns1 = 11;
+  if (this->dns1().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->dns1().data(), this->dns1().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.dns1");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        11, this->dns1(), target);
+  }
+
+  // optional string dns2 = 12;
+  if (this->dns2().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->dns2().data(), this->dns2().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.dns2");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        12, this->dns2(), target);
+  }
+
+  // optional string gateway = 13;
+  if (this->gateway().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->gateway().data(), this->gateway().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.gateway");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        13, this->gateway(), target);
+  }
+
   // @@protoc_insertion_point(serialize_to_array_end:com.erobbing.adb_config_demo.Config)
   return target;
 }
@@ -667,6 +884,41 @@ size_t Config::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->manufacturerid());
+  }
+
+  // optional string ip = 9;
+  if (this->ip().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->ip());
+  }
+
+  // optional string ipmask = 10;
+  if (this->ipmask().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->ipmask());
+  }
+
+  // optional string dns1 = 11;
+  if (this->dns1().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->dns1());
+  }
+
+  // optional string dns2 = 12;
+  if (this->dns2().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->dns2());
+  }
+
+  // optional string gateway = 13;
+  if (this->gateway().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->gateway());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -732,6 +984,26 @@ void Config::UnsafeMergeFrom(const Config& from) {
 
     manufacturerid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.manufacturerid_);
   }
+  if (from.ip().size() > 0) {
+
+    ip_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.ip_);
+  }
+  if (from.ipmask().size() > 0) {
+
+    ipmask_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.ipmask_);
+  }
+  if (from.dns1().size() > 0) {
+
+    dns1_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.dns1_);
+  }
+  if (from.dns2().size() > 0) {
+
+    dns2_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.dns2_);
+  }
+  if (from.gateway().size() > 0) {
+
+    gateway_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.gateway_);
+  }
 }
 
 void Config::CopyFrom(const ::google::protobuf::Message& from) {
@@ -766,6 +1038,11 @@ void Config::InternalSwap(Config* other) {
   provinceid_.Swap(&other->provinceid_);
   cityid_.Swap(&other->cityid_);
   manufacturerid_.Swap(&other->manufacturerid_);
+  ip_.Swap(&other->ip_);
+  ipmask_.Swap(&other->ipmask_);
+  dns1_.Swap(&other->dns1_);
+  dns2_.Swap(&other->dns2_);
+  gateway_.Swap(&other->gateway_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1071,6 +1348,226 @@ void Config::set_allocated_manufacturerid(::std::string* manufacturerid) {
   }
   manufacturerid_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), manufacturerid);
   // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.manufacturerID)
+}
+
+// optional string ip = 9;
+void Config::clear_ip() {
+  ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::ip() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.ip)
+  return ip_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_ip(const ::std::string& value) {
+  
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.ip)
+}
+void Config::set_ip(const char* value) {
+  
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.ip)
+}
+void Config::set_ip(const char* value, size_t size) {
+  
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.ip)
+}
+::std::string* Config::mutable_ip() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.ip)
+  return ip_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_ip() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.ip)
+  
+  return ip_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_ip(::std::string* ip) {
+  if (ip != NULL) {
+    
+  } else {
+    
+  }
+  ip_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ip);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.ip)
+}
+
+// optional string ipmask = 10;
+void Config::clear_ipmask() {
+  ipmask_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::ipmask() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.ipmask)
+  return ipmask_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_ipmask(const ::std::string& value) {
+  
+  ipmask_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.ipmask)
+}
+void Config::set_ipmask(const char* value) {
+  
+  ipmask_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.ipmask)
+}
+void Config::set_ipmask(const char* value, size_t size) {
+  
+  ipmask_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.ipmask)
+}
+::std::string* Config::mutable_ipmask() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.ipmask)
+  return ipmask_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_ipmask() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.ipmask)
+  
+  return ipmask_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_ipmask(::std::string* ipmask) {
+  if (ipmask != NULL) {
+    
+  } else {
+    
+  }
+  ipmask_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ipmask);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.ipmask)
+}
+
+// optional string dns1 = 11;
+void Config::clear_dns1() {
+  dns1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::dns1() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.dns1)
+  return dns1_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_dns1(const ::std::string& value) {
+  
+  dns1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.dns1)
+}
+void Config::set_dns1(const char* value) {
+  
+  dns1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.dns1)
+}
+void Config::set_dns1(const char* value, size_t size) {
+  
+  dns1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.dns1)
+}
+::std::string* Config::mutable_dns1() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.dns1)
+  return dns1_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_dns1() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.dns1)
+  
+  return dns1_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_dns1(::std::string* dns1) {
+  if (dns1 != NULL) {
+    
+  } else {
+    
+  }
+  dns1_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), dns1);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.dns1)
+}
+
+// optional string dns2 = 12;
+void Config::clear_dns2() {
+  dns2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::dns2() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.dns2)
+  return dns2_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_dns2(const ::std::string& value) {
+  
+  dns2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.dns2)
+}
+void Config::set_dns2(const char* value) {
+  
+  dns2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.dns2)
+}
+void Config::set_dns2(const char* value, size_t size) {
+  
+  dns2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.dns2)
+}
+::std::string* Config::mutable_dns2() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.dns2)
+  return dns2_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_dns2() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.dns2)
+  
+  return dns2_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_dns2(::std::string* dns2) {
+  if (dns2 != NULL) {
+    
+  } else {
+    
+  }
+  dns2_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), dns2);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.dns2)
+}
+
+// optional string gateway = 13;
+void Config::clear_gateway() {
+  gateway_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::gateway() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.gateway)
+  return gateway_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_gateway(const ::std::string& value) {
+  
+  gateway_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.gateway)
+}
+void Config::set_gateway(const char* value) {
+  
+  gateway_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.gateway)
+}
+void Config::set_gateway(const char* value, size_t size) {
+  
+  gateway_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.gateway)
+}
+::std::string* Config::mutable_gateway() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.gateway)
+  return gateway_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_gateway() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.gateway)
+  
+  return gateway_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_gateway(::std::string* gateway) {
+  if (gateway != NULL) {
+    
+  } else {
+    
+  }
+  gateway_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), gateway);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.gateway)
 }
 
 inline const Config* Config::internal_default_instance() {

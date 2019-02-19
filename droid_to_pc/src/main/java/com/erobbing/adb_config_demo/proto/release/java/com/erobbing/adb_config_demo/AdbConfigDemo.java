@@ -441,6 +441,56 @@ public final class AdbConfigDemo {
      */
     com.google.protobuf.ByteString
         getManufacturerIDBytes();
+
+    /**
+     * <code>optional string ip = 9;</code>
+     */
+    java.lang.String getIp();
+    /**
+     * <code>optional string ip = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getIpBytes();
+
+    /**
+     * <code>optional string ipmask = 10;</code>
+     */
+    java.lang.String getIpmask();
+    /**
+     * <code>optional string ipmask = 10;</code>
+     */
+    com.google.protobuf.ByteString
+        getIpmaskBytes();
+
+    /**
+     * <code>optional string dns1 = 11;</code>
+     */
+    java.lang.String getDns1();
+    /**
+     * <code>optional string dns1 = 11;</code>
+     */
+    com.google.protobuf.ByteString
+        getDns1Bytes();
+
+    /**
+     * <code>optional string dns2 = 12;</code>
+     */
+    java.lang.String getDns2();
+    /**
+     * <code>optional string dns2 = 12;</code>
+     */
+    com.google.protobuf.ByteString
+        getDns2Bytes();
+
+    /**
+     * <code>optional string gateway = 13;</code>
+     */
+    java.lang.String getGateway();
+    /**
+     * <code>optional string gateway = 13;</code>
+     */
+    com.google.protobuf.ByteString
+        getGatewayBytes();
   }
   /**
    * <pre>
@@ -466,6 +516,11 @@ public final class AdbConfigDemo {
       provinceID_ = "";
       cityID_ = "";
       manufacturerID_ = "";
+      ip_ = "";
+      ipmask_ = "";
+      dns1_ = "";
+      dns2_ = "";
+      gateway_ = "";
     }
 
     @java.lang.Override
@@ -537,6 +592,36 @@ public final class AdbConfigDemo {
               java.lang.String s = input.readStringRequireUtf8();
 
               manufacturerID_ = s;
+              break;
+            }
+            case 74: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              ip_ = s;
+              break;
+            }
+            case 82: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              ipmask_ = s;
+              break;
+            }
+            case 90: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              dns1_ = s;
+              break;
+            }
+            case 98: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              dns2_ = s;
+              break;
+            }
+            case 106: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              gateway_ = s;
               break;
             }
           }
@@ -840,6 +925,176 @@ public final class AdbConfigDemo {
       }
     }
 
+    public static final int IP_FIELD_NUMBER = 9;
+    private volatile java.lang.Object ip_;
+    /**
+     * <code>optional string ip = 9;</code>
+     */
+    public java.lang.String getIp() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        ip_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string ip = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIpBytes() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        ip_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int IPMASK_FIELD_NUMBER = 10;
+    private volatile java.lang.Object ipmask_;
+    /**
+     * <code>optional string ipmask = 10;</code>
+     */
+    public java.lang.String getIpmask() {
+      java.lang.Object ref = ipmask_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        ipmask_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string ipmask = 10;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIpmaskBytes() {
+      java.lang.Object ref = ipmask_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        ipmask_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DNS1_FIELD_NUMBER = 11;
+    private volatile java.lang.Object dns1_;
+    /**
+     * <code>optional string dns1 = 11;</code>
+     */
+    public java.lang.String getDns1() {
+      java.lang.Object ref = dns1_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        dns1_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string dns1 = 11;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDns1Bytes() {
+      java.lang.Object ref = dns1_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        dns1_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DNS2_FIELD_NUMBER = 12;
+    private volatile java.lang.Object dns2_;
+    /**
+     * <code>optional string dns2 = 12;</code>
+     */
+    public java.lang.String getDns2() {
+      java.lang.Object ref = dns2_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        dns2_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string dns2 = 12;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDns2Bytes() {
+      java.lang.Object ref = dns2_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        dns2_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int GATEWAY_FIELD_NUMBER = 13;
+    private volatile java.lang.Object gateway_;
+    /**
+     * <code>optional string gateway = 13;</code>
+     */
+    public java.lang.String getGateway() {
+      java.lang.Object ref = gateway_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gateway_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string gateway = 13;</code>
+     */
+    public com.google.protobuf.ByteString
+        getGatewayBytes() {
+      java.lang.Object ref = gateway_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gateway_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -876,6 +1131,21 @@ public final class AdbConfigDemo {
       if (!getManufacturerIDBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 8, manufacturerID_);
       }
+      if (!getIpBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, ip_);
+      }
+      if (!getIpmaskBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 10, ipmask_);
+      }
+      if (!getDns1Bytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 11, dns1_);
+      }
+      if (!getDns2Bytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 12, dns2_);
+      }
+      if (!getGatewayBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 13, gateway_);
+      }
     }
 
     public int getSerializedSize() {
@@ -909,6 +1179,21 @@ public final class AdbConfigDemo {
       if (!getManufacturerIDBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, manufacturerID_);
       }
+      if (!getIpBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, ip_);
+      }
+      if (!getIpmaskBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, ipmask_);
+      }
+      if (!getDns1Bytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, dns1_);
+      }
+      if (!getDns2Bytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, dns2_);
+      }
+      if (!getGatewayBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, gateway_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -941,6 +1226,16 @@ public final class AdbConfigDemo {
           .equals(other.getCityID());
       result = result && getManufacturerID()
           .equals(other.getManufacturerID());
+      result = result && getIp()
+          .equals(other.getIp());
+      result = result && getIpmask()
+          .equals(other.getIpmask());
+      result = result && getDns1()
+          .equals(other.getDns1());
+      result = result && getDns2()
+          .equals(other.getDns2());
+      result = result && getGateway()
+          .equals(other.getGateway());
       return result;
     }
 
@@ -968,6 +1263,16 @@ public final class AdbConfigDemo {
       hash = (53 * hash) + getCityID().hashCode();
       hash = (37 * hash) + MANUFACTURERID_FIELD_NUMBER;
       hash = (53 * hash) + getManufacturerID().hashCode();
+      hash = (37 * hash) + IP_FIELD_NUMBER;
+      hash = (53 * hash) + getIp().hashCode();
+      hash = (37 * hash) + IPMASK_FIELD_NUMBER;
+      hash = (53 * hash) + getIpmask().hashCode();
+      hash = (37 * hash) + DNS1_FIELD_NUMBER;
+      hash = (53 * hash) + getDns1().hashCode();
+      hash = (37 * hash) + DNS2_FIELD_NUMBER;
+      hash = (53 * hash) + getDns2().hashCode();
+      hash = (37 * hash) + GATEWAY_FIELD_NUMBER;
+      hash = (53 * hash) + getGateway().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1106,6 +1411,16 @@ public final class AdbConfigDemo {
 
         manufacturerID_ = "";
 
+        ip_ = "";
+
+        ipmask_ = "";
+
+        dns1_ = "";
+
+        dns2_ = "";
+
+        gateway_ = "";
+
         return this;
       }
 
@@ -1136,6 +1451,11 @@ public final class AdbConfigDemo {
         result.provinceID_ = provinceID_;
         result.cityID_ = cityID_;
         result.manufacturerID_ = manufacturerID_;
+        result.ip_ = ip_;
+        result.ipmask_ = ipmask_;
+        result.dns1_ = dns1_;
+        result.dns2_ = dns2_;
+        result.gateway_ = gateway_;
         onBuilt();
         return result;
       }
@@ -1205,6 +1525,26 @@ public final class AdbConfigDemo {
         }
         if (!other.getManufacturerID().isEmpty()) {
           manufacturerID_ = other.manufacturerID_;
+          onChanged();
+        }
+        if (!other.getIp().isEmpty()) {
+          ip_ = other.ip_;
+          onChanged();
+        }
+        if (!other.getIpmask().isEmpty()) {
+          ipmask_ = other.ipmask_;
+          onChanged();
+        }
+        if (!other.getDns1().isEmpty()) {
+          dns1_ = other.dns1_;
+          onChanged();
+        }
+        if (!other.getDns2().isEmpty()) {
+          dns2_ = other.dns2_;
+          onChanged();
+        }
+        if (!other.getGateway().isEmpty()) {
+          gateway_ = other.gateway_;
           onChanged();
         }
         onChanged();
@@ -1842,6 +2182,351 @@ public final class AdbConfigDemo {
         onChanged();
         return this;
       }
+
+      private java.lang.Object ip_ = "";
+      /**
+       * <code>optional string ip = 9;</code>
+       */
+      public java.lang.String getIp() {
+        java.lang.Object ref = ip_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          ip_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string ip = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIpBytes() {
+        java.lang.Object ref = ip_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ip_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string ip = 9;</code>
+       */
+      public Builder setIp(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        ip_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ip = 9;</code>
+       */
+      public Builder clearIp() {
+        
+        ip_ = getDefaultInstance().getIp();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ip = 9;</code>
+       */
+      public Builder setIpBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        ip_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object ipmask_ = "";
+      /**
+       * <code>optional string ipmask = 10;</code>
+       */
+      public java.lang.String getIpmask() {
+        java.lang.Object ref = ipmask_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          ipmask_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string ipmask = 10;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIpmaskBytes() {
+        java.lang.Object ref = ipmask_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ipmask_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string ipmask = 10;</code>
+       */
+      public Builder setIpmask(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        ipmask_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ipmask = 10;</code>
+       */
+      public Builder clearIpmask() {
+        
+        ipmask_ = getDefaultInstance().getIpmask();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ipmask = 10;</code>
+       */
+      public Builder setIpmaskBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        ipmask_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object dns1_ = "";
+      /**
+       * <code>optional string dns1 = 11;</code>
+       */
+      public java.lang.String getDns1() {
+        java.lang.Object ref = dns1_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          dns1_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string dns1 = 11;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDns1Bytes() {
+        java.lang.Object ref = dns1_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          dns1_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string dns1 = 11;</code>
+       */
+      public Builder setDns1(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        dns1_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string dns1 = 11;</code>
+       */
+      public Builder clearDns1() {
+        
+        dns1_ = getDefaultInstance().getDns1();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string dns1 = 11;</code>
+       */
+      public Builder setDns1Bytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        dns1_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object dns2_ = "";
+      /**
+       * <code>optional string dns2 = 12;</code>
+       */
+      public java.lang.String getDns2() {
+        java.lang.Object ref = dns2_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          dns2_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string dns2 = 12;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDns2Bytes() {
+        java.lang.Object ref = dns2_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          dns2_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string dns2 = 12;</code>
+       */
+      public Builder setDns2(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        dns2_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string dns2 = 12;</code>
+       */
+      public Builder clearDns2() {
+        
+        dns2_ = getDefaultInstance().getDns2();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string dns2 = 12;</code>
+       */
+      public Builder setDns2Bytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        dns2_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object gateway_ = "";
+      /**
+       * <code>optional string gateway = 13;</code>
+       */
+      public java.lang.String getGateway() {
+        java.lang.Object ref = gateway_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gateway_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string gateway = 13;</code>
+       */
+      public com.google.protobuf.ByteString
+          getGatewayBytes() {
+        java.lang.Object ref = gateway_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gateway_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string gateway = 13;</code>
+       */
+      public Builder setGateway(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gateway_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string gateway = 13;</code>
+       */
+      public Builder clearGateway() {
+        
+        gateway_ = getDefaultInstance().getGateway();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string gateway = 13;</code>
+       */
+      public Builder setGatewayBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gateway_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1906,16 +2591,18 @@ public final class AdbConfigDemo {
   static {
     java.lang.String[] descriptorData = {
       "\n\025adb_config_demo.proto\022\034com.erobbing.ad" +
-      "b_config_demo\"\232\001\n\006Config\022\021\n\terrorCode\030\001 " +
+      "b_config_demo\"\343\001\n\006Config\022\021\n\terrorCode\030\001 " +
       "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho" +
       "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin" +
       "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur" +
-      "erID\030\010 \001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMO" +
-      "N_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcm" +
-      "d_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWrite" +
-      "Config\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnreg" +
-      "isterBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdC",
-      "learAuthCode\020\006b\006proto3"
+      "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014" +
+      "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r " +
+      "\001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMON_ERROR" +
+      "\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcmd_dummy" +
+      "\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWriteConfig\020",
+      "\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnregisterBo" +
+      "x\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdClearAut" +
+      "hCode\020\006b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1934,7 +2621,7 @@ public final class AdbConfigDemo {
     internal_static_com_erobbing_adb_config_demo_Config_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_erobbing_adb_config_demo_Config_descriptor,
-        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", });
+        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", "Ip", "Ipmask", "Dns1", "Dns2", "Gateway", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
