@@ -38,6 +38,7 @@ public class MyLocalConfig extends LocalConfigServer {
                 @Override
                 public void doCmd(long cmd, byte[] data) throws Exception {
                     mLog.i("获取到读配置指令");
+                    android.util.Log.e("====", "==========获取到读配置指令");
 
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
 
@@ -62,6 +63,7 @@ public class MyLocalConfig extends LocalConfigServer {
                 @Override
                 public void doCmd(long cmd, byte[] data) throws Exception {
                     mLog.i("获取到写配置指令");
+                    android.util.Log.e("====", "==========获取到写配置指令");
 
                     // 解析读到的数据
                     AdbConfigDemo.Config config = AdbConfigDemo.Config.parseFrom(data);
@@ -74,17 +76,32 @@ public class MyLocalConfig extends LocalConfigServer {
                     ed.putString("province_id", config.getProvinceID());
                     ed.putString("city_id", config.getCityID());
                     ed.putString("manufacturer_id", config.getManufacturerID());
+                    ed.putString("ip", config.getIp());
+                    ed.putString("ip_mask", config.getIpmask());
+                    ed.putString("dns1", config.getDns1());
+                    ed.putString("dns2", config.getDns2());
+                    ed.putString("gateway", config.getGateway());
                     ed.commit();
                     Log.d(TAG, "SharedPreferences.shop_id=" + config.getShopID() + " - box_id=" + config.getBoxID()
                             + " - key_id=" + config.getKeyID() + " - province_id=" + config.getProvinceID()
-                            + " - city_id=" + config.getCityID() + " - manufacturer_id=" + config.getManufacturerID());
-                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID");
+                            + " - city_id=" + config.getCityID() + " - manufacturer_id=" + config.getManufacturerID()
+                            + " - ip=" + config.getIp() + "- ip_mask=" + config.getIpmask()
+                            + " - dns1=" + config.getDns1() + " - dns2=" + config.getDns2()
+                            + " - gateway=" + config.getGateway());
+                    /*Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_REG");
                     intent.putExtra("shop_id", config.getShopID());
                     intent.putExtra("box_id", config.getBoxID());
                     intent.putExtra("key_id", config.getKeyID());
                     intent.putExtra("province_id", config.getProvinceID());
                     intent.putExtra("city_id", config.getCityID());
                     intent.putExtra("manufacturer_id", config.getManufacturerID());
+                    mService.sendBroadcast(intent);*/
+                    Intent intent = new Intent("com.erobbing.action.ETHERNET_CHANGE");
+                    intent.putExtra("ip", config.getIp());
+                    intent.putExtra("ipmask", config.getIpmask());
+                    intent.putExtra("gateway", config.getGateway());
+                    intent.putExtra("dns1", config.getDns1());
+                    intent.putExtra("dns2", config.getDns2());
                     mService.sendBroadcast(intent);
                     // TODO: 保存其他值
 
@@ -95,7 +112,61 @@ public class MyLocalConfig extends LocalConfigServer {
                 }
             });
 
+            put(AdbConfigDemo.Cmd.cmdRegisterBox_VALUE, new DealerBase() {
+                @Override
+                public void doCmd(long cmd, byte[] data) throws Exception {
+                    mLog.i("注册箱子");
+                    android.util.Log.e("====", "==========注册箱子");
+                    SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
+                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_REG");
+                    intent.putExtra("shop_id", sp.getString("shop_id", "77777777777777777777"));
+                    intent.putExtra("box_id", sp.getString("box_id", "019999999998"));
+                    intent.putExtra("key_id", sp.getString("key_id", "007777777778"));
+                    intent.putExtra("province_id", sp.getString("province_id", "37"));
+                    intent.putExtra("city_id", sp.getString("city_id", "0283"));
+                    intent.putExtra("manufacturer_id", sp.getString("manufacturer_id", "88888888"));
+                    mService.sendBroadcast(intent);
 
+                    AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
+                    builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
+                    send_resp(cmd, builder.build());
+                }
+            });
+
+            put(AdbConfigDemo.Cmd.cmdUnregisterBox_VALUE, new DealerBase() {
+                @Override
+                public void doCmd(long cmd, byte[] data) throws Exception {
+                    mLog.i("注销箱子");
+                    android.util.Log.e("====", "==========注销箱子");
+                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_UNREG");
+                    SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.clear();
+                    editor.commit();
+                    mService.sendBroadcast(intent);
+
+                    AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
+                    builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
+                    send_resp(cmd, builder.build());
+                }
+            });
+
+            put(AdbConfigDemo.Cmd.cmdClearAuthCode_VALUE, new DealerBase() {
+                @Override
+                public void doCmd(long cmd, byte[] data) throws Exception {
+                    mLog.i("清除鉴权码");
+                    android.util.Log.e("====", "==========清除鉴权码");
+
+                    SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor ed = sp.edit();
+                    ed.putString("auth_code", "unknown");
+                    ed.commit();
+
+                    AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
+                    builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
+                    send_resp(cmd, builder.build());
+                }
+            });
             // TODO: 在这里增加其他的命令处理方法
         }
     };

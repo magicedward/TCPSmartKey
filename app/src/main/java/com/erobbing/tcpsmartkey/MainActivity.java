@@ -25,6 +25,7 @@ import com.erobbing.tcpsmartkey.util.BCD8421Operater;
 import com.erobbing.tcpsmartkey.util.BitOperator;
 import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -80,6 +81,21 @@ public class MainActivity extends AppCompatActivity {
     private static final String LED_GREEN_09 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-09/brightness";
     private static final String LED_GREEN_10 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-10/brightness";
 
+    private static final String SWITCH_01_PATH = "/sys/class/gpio_switch/switch_ct_01";
+    private static final String SWITCH_02_PATH = "/sys/class/gpio_switch/switch_ct_02";
+    private static final String SWITCH_03_PATH = "/sys/class/gpio_switch/switch_ct_03";
+    private static final String SWITCH_04_PATH = "/sys/class/gpio_switch/switch_ct_04";
+    private static final String SWITCH_05_PATH = "/sys/class/gpio_switch/switch_ct_05";
+    private static final String SWITCH_06_PATH = "/sys/class/gpio_switch/switch_ct_06";
+    private static final String SWITCH_07_PATH = "/sys/class/gpio_switch/switch_ct_07";
+    private static final String SWITCH_08_PATH = "/sys/class/gpio_switch/switch_ct_08";
+    private static final String SWITCH_09_PATH = "/sys/class/gpio_switch/switch_ct_09";
+    private static final String SWITCH_10_PATH = "/sys/class/gpio_switch/switch_ct_10";
+
+    private static final String WRITE_AUTH_CODE_PATH = "/sys/bus/i2c/devices/6-005b/mcu/se_code";
+    private static final String RW_SHOP_ID_PATH = "/sys/bus/i2c/devices/6-005b/mcu/dm_id";
+    private static final String READ_KEY_ID_PATH = "/sys/bus/i2c/devices/6-005b/mcu/key_id";
+    private static final String RW_KEY_BATTERY_PATH = "/sys/bus/i2c/devices/6-005b/mcu/key_st";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +144,36 @@ public class MainActivity extends AppCompatActivity {
         //countStr();
         String sss = "7e000200000200000000150003327e7e333333333e7e7e4444444444f7e";
         //searchAllSubString(sss);
+        //reGroupString();
+        //allKeysIdpoweron();
+        //allKeysIdWrite();
+        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead());
+        Log.e("====", "=========convertStringToHex=" + convertHexToString("303030303030303930393230"));
+    }
+
+    public String convertStringToHex(String str) {
+        char[] chars = str.toCharArray();
+        StringBuffer hex = new StringBuffer();
+        for (int i = 0; i < chars.length; i++) {
+            hex.append(Integer.toHexString((int) chars[i]));
+        }
+        return hex.toString();
+    }
+
+    public String convertHexToString(String hex) {
+        StringBuilder sb = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
+        //49204c6f7665204a617661 split into two characters 49, 20, 4c...
+        for (int i = 0; i < hex.length() - 1; i += 2) {
+            //grab the hex in pairs
+            String output = hex.substring(i, (i + 2));
+            //convert hex to decimal
+            int decimal = Integer.parseInt(output, 16);
+            //convert the decimal to character
+            sb.append((char) decimal);
+            temp.append(decimal);
+        }
+        return sb.toString();
     }
 
     public void sendMessage(View view) {
@@ -217,15 +263,33 @@ public class MainActivity extends AppCompatActivity {
         Log.e("====", "===========mainactivity.checkSum=" + checkSum);*/
         //motor01StatusCtrl(true);
         //ledSeriesCtrl(LED_SERIES_01, true);
-        /*if (serviceConnected) {
-            try {
-                iMotorControl.setMotorStatus(false);
-                //iMotorControl.getMotorStatus();
-                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
+        //allKeysIdpoweron();
+        //allKeysIdWrite();
+        //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", true);
+        //ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+        //ShellUtils.execCommand("echo 77777777777777777777 > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
+        //ShellUtils.execCommand("echo 4266496677454c4a566c > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
+        //ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
+        //switchStatusCtrl(SWITCH_01_PATH, true);
+        //allKeysAuthCodeWrite("4266496677454c4a566c");
+        //switchStatusCtrl(SWITCH_01_PATH, false);
+    }
+
+    private void sleep(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void clear2(View view) {
+        textView_receive.setText("");
+        //motor01StatusCtrl(false);
+        //ledSeriesCtrl(LED_SERIES_01, false);
+        //clearAuthCode();
+        //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", false);
+        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());
     }
 
     public void motor01StatusCtrl(boolean on) {
@@ -260,28 +324,138 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void clear2(View view) {
-        textView_receive.setText("");
-        /*String ttString = "0100001e" + tmpPhoneId + "0018010006338888888877777777777777777777" + tmpKeyId + "990000000000";
-        int checkint = mBitOperator.getCheckSum4JT808(
-                mBCD8421Operater.string2Bcd(ttString), 0, (ttString.length() / 2));
+    public void allKeysIdpoweron() {
         try {
-            TcpClient.init().send(mMsgEncoder.doEncode(hexString2Intger(ttString), checkint));
-        } catch (Exception e) {
+            //SWITCH_04_PATH
+            FileWriter command = new FileWriter("/sys/class/gpio_switch/switch_ct_01");
+            command.write("on");
+        } catch (IOException e) {
             e.printStackTrace();
-        }*/
-        //motor01StatusCtrl(false);
-        //ledSeriesCtrl(LED_SERIES_01, false);
-        /*if (serviceConnected) {
+        }
+    }
+
+    public void allKeysIdWrite() {
+        try {
+            //SWITCH_04_PATH
+            FileWriter command = new FileWriter("/sys/bus/i2c/devices/6-005b/mcu/dm_id");
+            command.write("77777777777777777777");
+            //command.write("\n");
+            command.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void switchStatusCtrl(String path, boolean on) {
+        try {
+            FileWriter command = new FileWriter(path);
+            if (on) {
+                command.write("on");
+            } else {
+                command.write("off");
+            }
+            command.write("\n");
+            command.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void allKeysAuthCodeWrite(String cmd) {
+        try {
+            FileWriter command = new FileWriter(WRITE_AUTH_CODE_PATH);
+            command.write(cmd);
+            command.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void allKeysShopIdWrite(String cmd) {
+        try {
+            FileWriter command = new FileWriter(RW_SHOP_ID_PATH);
+            command.write(cmd);
+            command.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String allKeysIdRead() {
+        char[] buffer = new char[1024];
+
+        String state = "";
+        FileReader file = null;
+        try {
+            //fa-fa-fa-fa-fa-fa-fa-fa-fa-fa   default
+            //file = new FileReader("/sys/bus/i2c/devices/6-005b/mcu/se_code");
+            file = new FileReader("/sys/bus/i2c/devices/6-005b/mcu/dm_id");
+            int len = file.read(buffer, 0, 1024);
+            String oriString = String.valueOf((new String(buffer, 0, len)));
+            //state = String.valueOf((new String(buffer, 0, len)));
+            state = reGroupString(oriString);
+            if (file != null) {
+                file.close();
+                file = null;
+            }
+        } catch (Exception e) {
             try {
-                iMotorControl.setMotorStatus(true);
-                //iMotorControl.getMotorStatus();
-                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
-            } catch (Exception e) {
+                if (file != null) {
+                    file.close();
+                    file = null;
+                }
+            } catch (IOException io) {
+                //Log.e("WifiSpot", "getWifiSpotState fail");
                 e.printStackTrace();
             }
-        }*/
-        clearAuthCode();
+        }
+        return state;
+    }
+
+    private String allKeysAuthCodeRead() {
+        char[] buffer = new char[1024];
+
+        String state = "";
+        FileReader file = null;
+        try {
+            //fa-fa-fa-fa-fa-fa-fa-fa-fa-fa   default
+            //file = new FileReader("/sys/bus/i2c/devices/6-005b/mcu/se_code");
+            file = new FileReader("/sys/bus/i2c/devices/6-005b/mcu/se_code");
+            int len = file.read(buffer, 0, 1024);
+            String oriString = String.valueOf((new String(buffer, 0, len)));
+            //state = String.valueOf((new String(buffer, 0, len)));
+            state = reGroupString(oriString);
+            if (file != null) {
+                file.close();
+                file = null;
+            }
+        } catch (Exception e) {
+            try {
+                if (file != null) {
+                    file.close();
+                    file = null;
+                }
+            } catch (IOException io) {
+                //Log.e("WifiSpot", "getWifiSpotState fail");
+                e.printStackTrace();
+            }
+        }
+        return state;
+    }
+
+    private String reGroupString(String str) {
+        //String str = "fa-a-fa-fa-a-fa-fa-fa-fa-fa";
+        String[] strarray = str.split("-");
+        String newString = "";
+        for (int i = 0; i < strarray.length; i++) {
+            Log.e("====", "=======strarray[]=" + strarray[i]);
+            if (strarray[i] != null && strarray[i].length() < 2) {
+                strarray[i] = "0" + strarray[i];
+            }
+            newString += strarray[i];
+        }
+        Log.e("====", "==========newString=" + newString);
+        return newString;
     }
 
     public void clearAuthCode() {

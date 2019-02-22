@@ -67,4 +67,25 @@ public class HexStringUtils {
         //String str = Integer.toHexString(in);
         return String.format("%04x", num);
     }
+
+    public static String convertASCIIHexToString(String hex) {
+        StringBuilder sb = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
+        for (int i = 0; i < hex.length() - 1; i += 2) {
+            String output = hex.substring(i, (i + 2));
+            int decimal = Integer.parseInt(output, 16);
+            sb.append((char) decimal);
+            temp.append(decimal);
+        }
+        return sb.toString();
+    }
+
+    public String convertStringToASCIIHex(String str) {
+        char[] chars = str.toCharArray();
+        StringBuffer hex = new StringBuffer();
+        for (int i = 0; i < chars.length; i++) {
+            hex.append(Integer.toHexString((int) chars[i]));
+        }
+        return hex.toString();
+    }
 }
