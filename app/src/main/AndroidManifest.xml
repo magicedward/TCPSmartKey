@@ -31,6 +31,15 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".service.MyTtsService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.erobbing.tcpsmartkey.MyTtsService"/>
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".BootCompletedReceiver"
             android:enabled="true"

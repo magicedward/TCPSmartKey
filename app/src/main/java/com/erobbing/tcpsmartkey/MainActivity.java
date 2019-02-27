@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.erobbing.smartkey.aidl.IMotorControl;
 import com.erobbing.tcpsmartkey.common.tcpclient.TcpClient;
@@ -108,30 +107,6 @@ public class MainActivity extends AppCompatActivity {
         textView_receive.setMovementMethod(ScrollingMovementMethod.getInstance());
         Intent service = new Intent(this, com.erobbing.tcpsmartkey.service.TcpService.class);
         startService(service);
-        /*TcpClient.init().setDisconnectedCallback(new TcpClient.OnServerDisconnectedCallbackBlock() {
-            @Override
-            public void callback(IOException e) {
-                //textView_receive.setText(textView_receive.getText().toString() + "断开连接" + "\n");
-                Log.e("====", "==========断开连接" + "\n");
-            }
-        });
-        TcpClient.init().setConnectedCallback(new TcpClient.OnServerConnectedCallbackBlock() {
-            @Override
-            public void callback() {
-                //textView_receive.setText(textView_receive.getText().toString() + "连接成功" + "\n");
-                Log.e("====", "==========连接成功" + "\n");
-                //成功之后注册
-
-            }
-        });
-        TcpClient.init().setReceivedCallback(new TcpClient.OnReceiveCallbackBlock() {
-            @Override
-            public void callback(String receicedMessage) {
-                //textView_receive.setText(textView_receive.getText().toString() + receicedMessage + "\n");
-                Log.e("====", "==========receive=" + receicedMessage + "\n");
-            }
-        });*/
-
 
         //serverThread = new ServerThread();
         //serverThread.start();
@@ -180,17 +155,6 @@ public class MainActivity extends AppCompatActivity {
         String msg = "7e000200000200000000150003327e";//editText.getText().toString();
         String msg1 = "7E010000180199999999980018010006338888888877777777777777777777019999999798357E";
         String ttString = "0102000A019999999991001936345A33627742544A70";
-        /*int checkint = mBitOperator.getCheckSum4JT808(
-                mBCD8421Operater.string2Bcd("000200000200000000150003"), 0, (ttString.length() / 2));
-        Log.e("====", "=========activity.checkint=" + checkint);
-        try {
-            if (ttString != null) {
-                TcpClient.init().send(mMsgEncoder.doEncode(hexString2Intger(ttString), checkint));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
 
         //7E8100000D0199999999980001001800724B4370794E524F364D1A7E
         textView_send.setText("");
@@ -263,6 +227,15 @@ public class MainActivity extends AppCompatActivity {
         Log.e("====", "===========mainactivity.checkSum=" + checkSum);*/
         //motor01StatusCtrl(true);
         //ledSeriesCtrl(LED_SERIES_01, true);
+        /*if (serviceConnected) {
+            try {
+                iMotorControl.setMotorStatus(false);
+                //iMotorControl.getMotorStatus();
+                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
         //allKeysIdpoweron();
         //allKeysIdWrite();
         //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", true);
@@ -287,6 +260,15 @@ public class MainActivity extends AppCompatActivity {
         textView_receive.setText("");
         //motor01StatusCtrl(false);
         //ledSeriesCtrl(LED_SERIES_01, false);
+        /*if (serviceConnected) {
+            try {
+                iMotorControl.setMotorStatus(true);
+                //iMotorControl.getMotorStatus();
+                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
         //clearAuthCode();
         //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", false);
         Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());
@@ -319,63 +301,6 @@ public class MainActivity extends AppCompatActivity {
             }
             //command.write("\n");
             command.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void allKeysIdpoweron() {
-        try {
-            //SWITCH_04_PATH
-            FileWriter command = new FileWriter("/sys/class/gpio_switch/switch_ct_01");
-            command.write("on");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void allKeysIdWrite() {
-        try {
-            //SWITCH_04_PATH
-            FileWriter command = new FileWriter("/sys/bus/i2c/devices/6-005b/mcu/dm_id");
-            command.write("77777777777777777777");
-            //command.write("\n");
-            command.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void switchStatusCtrl(String path, boolean on) {
-        try {
-            FileWriter command = new FileWriter(path);
-            if (on) {
-                command.write("on");
-            } else {
-                command.write("off");
-            }
-            command.write("\n");
-            command.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void allKeysAuthCodeWrite(String cmd) {
-        try {
-            FileWriter command = new FileWriter(WRITE_AUTH_CODE_PATH);
-            command.write(cmd);
-            command.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void allKeysShopIdWrite(String cmd) {
-        try {
-            FileWriter command = new FileWriter(RW_SHOP_ID_PATH);
-            command.write(cmd);
-            command.write("\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -469,11 +394,22 @@ public class MainActivity extends AppCompatActivity {
     //ServerThread serverThread;
 
     Handler handler = new Handler() {
-
         @SuppressLint("NewApi")
         @Override
         public void handleMessage(Message msg) {
-            Toast.makeText(getApplicationContext(), msg.getData().getString("MSG", "Toast"), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), msg.getData().getString("MSG", "Toast"), Toast.LENGTH_SHORT).show();
+            switch (msg.what) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+            }
         }
     };
 

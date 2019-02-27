@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">TCPSmartKey</string>
+
+    <string name="tts_box_auth_failed">钥匙箱鉴权失败</string>
+    <string name="tts_box_auth_succeed">钥匙箱鉴权成功</string>
+    <string name="tts_box_reg_faileded">钥匙箱注册失败</string>
+    <string name="tts_box_reg_succeed">钥匙箱注册成功</string>
+    <string name="tts_box_reged">钥匙箱已注册</string>
+    <string name="tts_box_unreg_failed">钥匙箱注销失败</string>
+    <string name="tts_box_unreg_succeed">钥匙箱注销成功</string>
+    <string name="tts_box_upgrade">钥匙箱即将进行O-T-AA升级，请等待升级完成</string>
+    <string name="tts_key_auth_failed">钥匙扣鉴权失败</string>
+    <string name="tts_key_auth_succeed">钥匙扣鉴权成功</string>
+    <string name="tts_key_back_illegal">钥匙扣非法归还</string>
+    <string name="tts_key_back_succeed">钥匙扣归还成功</string>
+    <string name="tts_key_communicate_err">通信异常，请拔出钥匙扣重试</string>
+    <string name="tts_key_insert">钥匙扣插入</string>
+    <string name="tts_key_out">钥匙扣弹出</string>
+    <string name="tts_key_out_illegal">钥匙扣非法弹出</string>
+    <string name="tts_key_reg_failed">钥匙扣注册失败</string>
+    <string name="tts_key_reg_succeed">钥匙扣注册成功</string>
+    <string name="tts_key_reged">钥匙扣已注册</string>
+    <string name="tts_notify_key_remove">请取走钥匙扣</string>
+
+    <string name="tts_network_connected">网络连接成功</string>
+    <string name="tts_network_disconnected">网络连接断开</string>
 </resources>
