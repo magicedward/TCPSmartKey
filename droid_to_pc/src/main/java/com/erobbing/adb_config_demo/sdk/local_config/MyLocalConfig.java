@@ -96,19 +96,26 @@ public class MyLocalConfig extends LocalConfigServer {
                     intent.putExtra("city_id", config.getCityID());
                     intent.putExtra("manufacturer_id", config.getManufacturerID());
                     mService.sendBroadcast(intent);*/
-                    Intent intent = new Intent("com.erobbing.action.ETHERNET_CHANGE");
-                    intent.putExtra("ip", config.getIp());
-                    intent.putExtra("ipmask", config.getIpmask());
-                    intent.putExtra("gateway", config.getGateway());
-                    intent.putExtra("dns1", config.getDns1());
-                    intent.putExtra("dns2", config.getDns2());
-                    mService.sendBroadcast(intent);
                     // TODO: 保存其他值
 
                     // 返回消息
                     AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
                     builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
                     send_resp(cmd, builder.build());
+
+                    //send broadcast behind resp to avoid usb changing that response can't be sent out
+                    Intent intent = new Intent("com.erobbing.action.ETHERNET_CHANGE");
+                    boolean dhcp = config.getIpDhcp();
+                    String ip = config.getIp();
+                    if (dhcp || ip != null) {
+                        intent.putExtra("dhcp", dhcp);
+                        intent.putExtra("ip", ip);
+                        intent.putExtra("ipmask", config.getIpmask());
+                        intent.putExtra("gateway", config.getGateway());
+                        intent.putExtra("dns1", config.getDns1());
+                        intent.putExtra("dns2", config.getDns2());
+                        mService.sendBroadcast(intent);
+                    }
                 }
             });
 

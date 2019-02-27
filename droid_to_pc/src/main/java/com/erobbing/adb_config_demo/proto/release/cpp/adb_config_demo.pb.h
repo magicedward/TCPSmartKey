@@ -288,6 +288,12 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::std::string* release_gateway();
   void set_allocated_gateway(::std::string* gateway);
 
+  // optional bool ipDhcp = 14;
+  void clear_ipdhcp();
+  static const int kIpDhcpFieldNumber = 14;
+  bool ipdhcp() const;
+  void set_ipdhcp(bool value);
+
   // @@protoc_insertion_point(class_scope:com.erobbing.adb_config_demo.Config)
  private:
 
@@ -305,6 +311,7 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::internal::ArenaStringPtr gateway_;
   ::google::protobuf::int32 errorcode_;
   bool boxregisted_;
+  bool ipdhcp_;
   mutable int _cached_size_;
   friend void  protobuf_InitDefaults_adb_5fconfig_5fdemo_2eproto_impl();
   friend void  protobuf_AddDesc_adb_5fconfig_5fdemo_2eproto_impl();
@@ -833,6 +840,20 @@ inline void Config::set_allocated_gateway(::std::string* gateway) {
   }
   gateway_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), gateway);
   // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.gateway)
+}
+
+// optional bool ipDhcp = 14;
+inline void Config::clear_ipdhcp() {
+  ipdhcp_ = false;
+}
+inline bool Config::ipdhcp() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.ipDhcp)
+  return ipdhcp_;
+}
+inline void Config::set_ipdhcp(bool value) {
+  
+  ipdhcp_ = value;
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.ipDhcp)
 }
 
 inline const Config* Config::internal_default_instance() {

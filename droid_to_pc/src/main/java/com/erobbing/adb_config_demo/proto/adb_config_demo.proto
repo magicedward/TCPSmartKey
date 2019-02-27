@@ -45,4 +45,5 @@ message Config {
     string dns1 = 11;
     string dns2 = 12;
     string gateway = 13 ;
+    bool ipDhcp = 14;
 };

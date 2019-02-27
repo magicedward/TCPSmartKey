@@ -491,6 +491,11 @@ public final class AdbConfigDemo {
      */
     com.google.protobuf.ByteString
         getGatewayBytes();
+
+    /**
+     * <code>optional bool ipDhcp = 14;</code>
+     */
+    boolean getIpDhcp();
   }
   /**
    * <pre>
@@ -521,6 +526,7 @@ public final class AdbConfigDemo {
       dns1_ = "";
       dns2_ = "";
       gateway_ = "";
+      ipDhcp_ = false;
     }
 
     @java.lang.Override
@@ -622,6 +628,11 @@ public final class AdbConfigDemo {
               java.lang.String s = input.readStringRequireUtf8();
 
               gateway_ = s;
+              break;
+            }
+            case 112: {
+
+              ipDhcp_ = input.readBool();
               break;
             }
           }
@@ -1095,6 +1106,15 @@ public final class AdbConfigDemo {
       }
     }
 
+    public static final int IPDHCP_FIELD_NUMBER = 14;
+    private boolean ipDhcp_;
+    /**
+     * <code>optional bool ipDhcp = 14;</code>
+     */
+    public boolean getIpDhcp() {
+      return ipDhcp_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1146,6 +1166,9 @@ public final class AdbConfigDemo {
       if (!getGatewayBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 13, gateway_);
       }
+      if (ipDhcp_ != false) {
+        output.writeBool(14, ipDhcp_);
+      }
     }
 
     public int getSerializedSize() {
@@ -1194,6 +1217,10 @@ public final class AdbConfigDemo {
       if (!getGatewayBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, gateway_);
       }
+      if (ipDhcp_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(14, ipDhcp_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -1236,6 +1263,8 @@ public final class AdbConfigDemo {
           .equals(other.getDns2());
       result = result && getGateway()
           .equals(other.getGateway());
+      result = result && (getIpDhcp()
+          == other.getIpDhcp());
       return result;
     }
 
@@ -1273,6 +1302,9 @@ public final class AdbConfigDemo {
       hash = (53 * hash) + getDns2().hashCode();
       hash = (37 * hash) + GATEWAY_FIELD_NUMBER;
       hash = (53 * hash) + getGateway().hashCode();
+      hash = (37 * hash) + IPDHCP_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIpDhcp());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1421,6 +1453,8 @@ public final class AdbConfigDemo {
 
         gateway_ = "";
 
+        ipDhcp_ = false;
+
         return this;
       }
 
@@ -1456,6 +1490,7 @@ public final class AdbConfigDemo {
         result.dns1_ = dns1_;
         result.dns2_ = dns2_;
         result.gateway_ = gateway_;
+        result.ipDhcp_ = ipDhcp_;
         onBuilt();
         return result;
       }
@@ -1546,6 +1581,9 @@ public final class AdbConfigDemo {
         if (!other.getGateway().isEmpty()) {
           gateway_ = other.gateway_;
           onChanged();
+        }
+        if (other.getIpDhcp() != false) {
+          setIpDhcp(other.getIpDhcp());
         }
         onChanged();
         return this;
@@ -2527,6 +2565,32 @@ public final class AdbConfigDemo {
         onChanged();
         return this;
       }
+
+      private boolean ipDhcp_ ;
+      /**
+       * <code>optional bool ipDhcp = 14;</code>
+       */
+      public boolean getIpDhcp() {
+        return ipDhcp_;
+      }
+      /**
+       * <code>optional bool ipDhcp = 14;</code>
+       */
+      public Builder setIpDhcp(boolean value) {
+        
+        ipDhcp_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool ipDhcp = 14;</code>
+       */
+      public Builder clearIpDhcp() {
+        
+        ipDhcp_ = false;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -2591,18 +2655,18 @@ public final class AdbConfigDemo {
   static {
     java.lang.String[] descriptorData = {
       "\n\025adb_config_demo.proto\022\034com.erobbing.ad" +
-      "b_config_demo\"\343\001\n\006Config\022\021\n\terrorCode\030\001 " +
+      "b_config_demo\"\363\001\n\006Config\022\021\n\terrorCode\030\001 " +
       "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho" +
       "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin" +
       "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur" +
       "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014" +
       "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r " +
-      "\001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMON_ERROR" +
-      "\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcmd_dummy" +
-      "\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWriteConfig\020",
-      "\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnregisterBo" +
-      "x\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdClearAut" +
-      "hCode\020\006b\006proto3"
+      "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010*6\n\tErrorCode\022\006\n\002OK\020\000" +
+      "\022\020\n\014COMMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003" +
+      "Cmd\022\r\n\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n",
+      "\016cmdWriteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n" +
+      "\020cmdUnregisterBox\020\004\022\024\n\020cmdUnregisterKey\020" +
+      "\005\022\024\n\020cmdClearAuthCode\020\006b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2621,7 +2685,7 @@ public final class AdbConfigDemo {
     internal_static_com_erobbing_adb_config_demo_Config_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_erobbing_adb_config_demo_Config_descriptor,
-        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", "Ip", "Ipmask", "Dns1", "Dns2", "Gateway", });
+        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", "Ip", "Ipmask", "Dns1", "Dns2", "Gateway", "IpDhcp", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
