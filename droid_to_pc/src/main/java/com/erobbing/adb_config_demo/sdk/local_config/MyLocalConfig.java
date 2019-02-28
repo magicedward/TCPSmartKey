@@ -5,6 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import android.net.EthernetManager;
+import android.net.InterfaceConfiguration;
+import android.net.IpConfiguration;
+import android.net.IpConfiguration.IpAssignment;
+import android.net.IpConfiguration.ProxySettings;
+import android.net.StaticIpConfiguration;
+import android.net.LinkAddress;
+import java.util.ArrayList;
+
 import com.erobbing.adb_config_demo.AdbConfigDemo;
 import com.erobbing.adb_config_demo.sdk.local_config.dealers.Dealer;
 import com.erobbing.adb_config_demo.sdk.local_config.dealers.DealerBase;
@@ -52,6 +61,29 @@ public class MyLocalConfig extends LocalConfigServer {
                     builder.setCityID(sp.getString("city_id", ""));
                     builder.setManufacturerID(sp.getString("manufacturer_id", ""));
 
+                    EthernetManager ethernetManager = (EthernetManager) getSystemService(Context.ETHERNET_SERVICE);
+                    if (null != ethernetManager){
+                        IpConfiguration config = ethernetManager.getConfiguration();
+                        IpAssignment ipAssignment = config.ipAssignment;
+                        if (ipAssignment == IpAssignment.DHCP){
+                            builder.setIpDhcp(true);
+                        }else{
+                            StaticIpConfiguration sc = config.staticIpConfiguration;
+                            builder.setIpDhcp(false);
+                            String ip = config.ipAddress.getAddress().getHostAddress();
+                            builder.setIp(ip);
+                            builder.setGateway(config.gateway.getHostAddress());
+                            ArrayList<InetAddress> dnsServers = config.dnsServers;
+                            if (dnsServers.size() >= 1){
+                                builder.setDns1(dnsServers.get(0).getHostAddress());
+                            }
+
+                            if (dnsServers.size() >= 2){
+                                builder.setDns2(dnsServers.get(1).getHostAddress());
+                            }
+                            builder.setIpmask("255.255.255.0");
+                        }
+                    }
                     // TODO: 设置其他值
 
                     // 发送消息给客户端
@@ -107,15 +139,21 @@ public class MyLocalConfig extends LocalConfigServer {
                     Intent intent = new Intent("com.erobbing.action.ETHERNET_CHANGE");
                     boolean dhcp = config.getIpDhcp();
                     String ip = config.getIp();
-                    if (dhcp || ip != null) {
+
+                    if (dhcp || ip != null){
+                        intent.putExtra("ethernet_switch", true);
                         intent.putExtra("dhcp", dhcp);
                         intent.putExtra("ip", ip);
                         intent.putExtra("ipmask", config.getIpmask());
                         intent.putExtra("gateway", config.getGateway());
                         intent.putExtra("dns1", config.getDns1());
                         intent.putExtra("dns2", config.getDns2());
-                        mService.sendBroadcast(intent);
+                        
+                    }else {
+                        intent.putExtra("ethernet_switch", false);
                     }
+
+                    mService.sendBroadcast(intent);
                 }
             });
 
