@@ -12,7 +12,9 @@ import android.net.IpConfiguration.IpAssignment;
 import android.net.IpConfiguration.ProxySettings;
 import android.net.StaticIpConfiguration;
 import android.net.LinkAddress;
+
 import java.util.ArrayList;
+import java.net.InetAddress;
 
 import com.erobbing.adb_config_demo.AdbConfigDemo;
 import com.erobbing.adb_config_demo.sdk.local_config.dealers.Dealer;
@@ -29,11 +31,13 @@ public class MyLocalConfig extends LocalConfigServer {
     private static final String TAG = "MyLocalConfig";
     private MyLogger mLog = MyLogger.jLog();
     private SdkService mService;
+    EthernetManager ethernetManager;
 
     public MyLocalConfig(SdkService sdkService) {
         // 修改端口号
         mListenPort = 10087;
         mService = sdkService;
+        ethernetManager = (EthernetManager) mService.getSystemService("ethernet");
     }
 
 
@@ -47,6 +51,7 @@ public class MyLocalConfig extends LocalConfigServer {
                 @Override
                 public void doCmd(long cmd, byte[] data) throws Exception {
                     mLog.i("获取到读配置指令");
+                    Log.d(TAG, "read config begin...");
                     android.util.Log.e("====", "==========获取到读配置指令");
 
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
@@ -60,31 +65,36 @@ public class MyLocalConfig extends LocalConfigServer {
                     builder.setProvinceID(sp.getString("province_id", ""));
                     builder.setCityID(sp.getString("city_id", ""));
                     builder.setManufacturerID(sp.getString("manufacturer_id", ""));
+                    Log.d(TAG, "read config begin.2..");
 
-                    EthernetManager ethernetManager = (EthernetManager) getSystemService(Context.ETHERNET_SERVICE);
-                    if (null != ethernetManager){
+                    if (null != ethernetManager) {
+                        Log.d(TAG, "read config begin..4.");
                         IpConfiguration config = ethernetManager.getConfiguration();
                         IpAssignment ipAssignment = config.ipAssignment;
-                        if (ipAssignment == IpAssignment.DHCP){
+                        Log.d(TAG, "read config :" + config);
+                        if (ipAssignment == IpAssignment.DHCP) {
                             builder.setIpDhcp(true);
-                        }else{
+                        } else {
                             StaticIpConfiguration sc = config.staticIpConfiguration;
                             builder.setIpDhcp(false);
-                            String ip = config.ipAddress.getAddress().getHostAddress();
+                            String ip = sc.ipAddress.getAddress().getHostAddress();
+                            Log.d(TAG, "read config ip:" + ip);
                             builder.setIp(ip);
-                            builder.setGateway(config.gateway.getHostAddress());
-                            ArrayList<InetAddress> dnsServers = config.dnsServers;
-                            if (dnsServers.size() >= 1){
+                            builder.setGateway(sc.gateway.getHostAddress());
+                            Log.d(TAG, "read config gateway:" + sc.gateway.getHostAddress());
+                            ArrayList<InetAddress> dnsServers = sc.dnsServers;
+                            if (dnsServers.size() >= 1) {
                                 builder.setDns1(dnsServers.get(0).getHostAddress());
                             }
 
-                            if (dnsServers.size() >= 2){
+                            if (dnsServers.size() >= 2) {
                                 builder.setDns2(dnsServers.get(1).getHostAddress());
                             }
                             builder.setIpmask("255.255.255.0");
                         }
                     }
                     // TODO: 设置其他值
+                    Log.d(TAG, "read config over");
 
                     // 发送消息给客户端
                     send_resp(cmd, builder.build());
@@ -140,7 +150,7 @@ public class MyLocalConfig extends LocalConfigServer {
                     boolean dhcp = config.getIpDhcp();
                     String ip = config.getIp();
 
-                    if (dhcp || ip != null){
+                    if (dhcp || ip != null) {
                         intent.putExtra("ethernet_switch", true);
                         intent.putExtra("dhcp", dhcp);
                         intent.putExtra("ip", ip);
@@ -148,8 +158,8 @@ public class MyLocalConfig extends LocalConfigServer {
                         intent.putExtra("gateway", config.getGateway());
                         intent.putExtra("dns1", config.getDns1());
                         intent.putExtra("dns2", config.getDns2());
-                        
-                    }else {
+
+                    } else {
                         intent.putExtra("ethernet_switch", false);
                     }
 

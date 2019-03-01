@@ -12,7 +12,12 @@ import android.content.res.AssetFileDescriptor;
 import android.hardware.usb.UsbManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
+import android.net.EthernetManager;
+import android.net.IpConfiguration;
+import android.net.IpConfiguration.IpAssignment;
+import android.net.LinkAddress;
 import android.net.NetworkInfo;
+import android.net.StaticIpConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,6 +28,24 @@ import android.os.SystemService;
 import android.os.UEventObserver;
 import android.util.Log;
 import android.widget.Toast;
+
+import android.net.DhcpResults;
+import android.net.EthernetManager;
+//import android.net.IEthernetServiceListener;
+import android.net.EthernetManager.Listener;
+import android.net.InterfaceConfiguration;
+import android.net.IpConfiguration;
+import android.net.IpConfiguration.IpAssignment;
+import android.net.IpConfiguration.ProxySettings;
+import android.net.StaticIpConfiguration;
+import android.net.LinkAddress;
+
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.lang.reflect.Constructor;
 
 import com.erobbing.tcpsmartkey.R;
 import com.erobbing.tcpsmartkey.common.PackageData;
@@ -40,6 +63,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -77,7 +102,7 @@ public class TcpService extends Service {
     private String mHeadAttributesLast = "0";
 
     //byte[4-9]   终端手机号或设备ID bcd[6]
-    private String mHeadPhoneNum = "000123456789";
+    private String mHeadPhoneNum = "019999999978";
     //byte[10-11]     消息流水号 word(16) 按发送顺序从 0 开始循环累加
     private String mHeadMsgSeq = "0001";
     private int mHeadMsgSeqInt = 0;
@@ -154,7 +179,7 @@ public class TcpService extends Service {
     PackageData.MsgHeader mPackageDataMsgHeader;
 
     //演示用终端(箱子)id
-    private String tmpPhoneId = "019999999976";//019999999998
+    private String tmpPhoneId = "019999999979";//019999999998
     private String tmpKeyId = "000000090901";
     private String currentKeyId = "000000000000";//"000000090901";
     private String currentKeyholeId = "01";
@@ -250,6 +275,8 @@ public class TcpService extends Service {
     private static final long LED_FAST_BLINK_TIME = 500;
     private static final long LED_BLINK_SLEEP_TIME = 100;
 
+    private static final long KEY_BAT_NULL_CHECK_TIME = 5000;
+    private int mKeyBatNullCheckCount = 4;
 
     private boolean isKey01On = false;
     private boolean isKey01MiddleOn = false;
@@ -474,9 +501,155 @@ public class TcpService extends Service {
     private MotorCtrlHandler mMotorCtrlHandler;
     private LedCtrlHandler mLedCtrlHandler;
     private NetworkStatusHandler mNetworkStatusHandler;
+    private KeyPlugInHandler mKeyPlugInHandler;
+    private KeyBatNullCheckHandler mKeyBatNullCheckHandler;
 
     ConnectivityManager mConnectivityManager;
     private boolean mConnected = false;
+    private EthernetManager mEthernetManager;
+    private boolean isKeyCommunicateErr = false;
+    private boolean mEthernetConnected = false;
+
+    private final UEventObserver mMiddleSwitch01Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch01Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey01MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey01MiddleOn) {
+
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                boolean isLegal = getXmlKeyOutLegal();
+                if (isLegal) {
+                    //声音提示弹出
+                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "01" + "3b" + "00" + "3b" + getTimeHexString()));
+                    Log.e("====", "=========key01-normal-out-");
+                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                    playVoice(R.string.tts_key_out);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                    setXmlKeyOutLegal(false);
+                } else {
+                    //  提示非法
+                    Log.e("====", "=========key01-illegal-out-");
+                    playVoice(R.string.tts_key_out_illegal);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                    // TODO: 2019/2/28 上报服务器 
+                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                }
+                //setXmlKeyOutLegal(false);
+                isKeyCommunicateErr = false;
+            }
+        }
+    };
+
+    private final UEventObserver mMiddleSwitch02Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch02Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey02MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey02MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch03Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch03Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey03MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey03MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch04Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch04Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey04MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey04MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch05Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch05Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey05MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey05MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch06Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch06Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey06MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey06MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch07Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch07Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey07MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey07MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch08Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch08Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey08MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey08MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch09Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch09Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey09MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey09MiddleOn) {
+            } else {
+            }
+        }
+    };
+    private final UEventObserver mMiddleSwitch10Observer = new UEventObserver() {
+        @Override
+        public void onUEvent(UEventObserver.UEvent event) {
+            Log.d("mMiddleSwitch10Observer", "onUEvent.event.toString()=" + event.toString());
+            isKey10MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
+            //handler open motor
+            if (isKey10MiddleOn) {
+            } else {
+            }
+        }
+    };
 
     /////////////////////////////////////////////////////////////
     private final UEventObserver mBottomSwitch01Observer = new UEventObserver() {
@@ -489,80 +662,9 @@ public class TcpService extends Service {
             //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
             //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
             if (isKey01BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "01";
-                Log.e("=====", "key01--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key01reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key01=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key01=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key01-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key01-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
-                    }
-                }
-                ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
+                mKeyPlugInHandler.postDelayed(mKey01PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "01" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key01-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    playVoice(R.string.tts_key_out);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key01-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey01PlugInRunnable);
             }
         }
     };
@@ -572,10 +674,10 @@ public class TcpService extends Service {
             Log.d("mBottomSwitch02Observer", "onUEvent.event.toString()=" + event.toString());
             isKey02BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //mDroidToKey04Handler.postDelayed(playSoundKeyInsert, 50);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
             if (isKey02BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_02", false);
@@ -615,15 +717,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key02-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key01-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_02", false);
@@ -637,8 +739,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "02" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key02-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -646,8 +748,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -659,10 +761,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch03Observer", "onUEvent.event.toString()=" + event.toString());
             isKey03BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
             if (isKey03BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_03", false);
@@ -702,15 +804,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key03-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key03-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_03", false);
@@ -724,8 +826,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "03" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key03-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -733,8 +835,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -745,10 +847,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch04Observer", "onUEvent.event.toString()=" + event.toString());
             isKey04BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
             if (isKey04BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_04", false);
@@ -788,15 +890,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key04-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key04-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_04", false);
@@ -810,8 +912,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "04" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key04-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -819,8 +921,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -831,10 +933,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch05Observer", "onUEvent.event.toString()=" + event.toString());
             isKey05BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
 
             if (isKey05BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
@@ -875,15 +977,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key05-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key05-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_05", false);
@@ -897,8 +999,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "05" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key05-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -906,8 +1008,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -918,10 +1020,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch06Observer", "onUEvent.event.toString()=" + event.toString());
             isKey06BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
             if (isKey06BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_06", false);
@@ -961,15 +1063,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key06-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key06-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_out_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_06", false);
@@ -983,8 +1085,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "06" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key06-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -992,8 +1094,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 20);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 20);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -1004,10 +1106,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch07Observer", "onUEvent.event.toString()=" + event.toString());
             isKey07BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
             if (isKey07BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_07", false);
@@ -1047,15 +1149,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key07-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key07-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_07", false);
@@ -1069,8 +1171,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "07" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key07-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -1078,8 +1180,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -1090,10 +1192,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch08Observer", "onUEvent.event.toString()=" + event.toString());
             isKey08BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
             if (isKey08BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_08", false);
@@ -1119,8 +1221,10 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
                 } else if (shopId.contains("fafafafafafafafafafa")) {
                     //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 1000);
+                    // TODO: 2019/2/28 循环4次查询钥匙扣 done
+                    //playVoice(R.string.tts_key_communicate_err);
+                    //mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 1000);
+                    mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
                 } else {
                     Log.e("====", "===key08=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
                     Log.e("====", "===key08=shopId=" + shopId + "-length=" + shopId.length());
@@ -1133,15 +1237,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key08-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key08-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_08", false);
@@ -1155,8 +1259,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "08" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key08-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -1164,8 +1268,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -1176,10 +1280,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch09Observer", "onUEvent.event.toString()=" + event.toString());
             isKey09BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
             if (isKey09BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_09", false);
@@ -1219,15 +1323,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key09-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key09-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_09", false);
@@ -1241,8 +1345,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "09" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key09-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -1250,8 +1354,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -1262,10 +1366,10 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch10Observer", "onUEvent.event.toString()=" + event.toString());
             isKey10BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
             if (isKey10BottomOn) {
                 //switchStatusCtrl(SWITCH_01_PATH, true);
                 ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_10", false);
@@ -1305,15 +1409,15 @@ public class TcpService extends Service {
                         //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
                         Log.e("====", "===============key10-back");
                         //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_ON, 10);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key10-back-illegal");
                         //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
-                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
                     }
                 }
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_10", false);
@@ -1327,8 +1431,8 @@ public class TcpService extends Service {
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "10" + "3b" + "00" + "3b" + getTimeHexString()));
                     Log.e("====", "=========key10-normal-out-");
                     //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
                     setXmlKeyOutLegal(false);
                 } else {
                     //  提示非法
@@ -1336,8 +1440,8 @@ public class TcpService extends Service {
                     playVoice(R.string.tts_key_out_illegal);
                     sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                     //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
                 }
                 //setXmlKeyOutLegal(false);
             }
@@ -1366,7 +1470,7 @@ public class TcpService extends Service {
                 Log.e("====", "=========service=断开连接" + "\n");
                 mConnected = false;
                 playVoice(R.string.tts_network_disconnected);
-                mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                //mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
             }
         });
         TcpClient.init().setConnectedCallback(new TcpClient.OnServerConnectedCallbackBlock() {
@@ -1376,9 +1480,10 @@ public class TcpService extends Service {
                 mConnected = true;
                 playVoice(R.string.tts_network_connected);
                 if (getSavedAuthCode().length() == 20) {
-                    sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, mHeadPhoneNum, getSavedAuthCode()));
+                    sleep(1000);
+                    sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, tmpPhoneId, getSavedAuthCode()));
                 }
-                mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                //mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
             }
         });
         TcpClient.init().setReceivedCallback(new TcpClient.OnReceiveCallbackBlock() {
@@ -1421,34 +1526,34 @@ public class TcpService extends Service {
         //registerReceiver(mNetworkChangeBroadcastReceiver, networkFilter);
 
         if (new File(KEY_INT01_PATH).exists()) {
-            //mMiddleSwitch01Observer.startObserving(KEY_INT01_STATE_MATCH);
+            mMiddleSwitch01Observer.startObserving(KEY_INT01_STATE_MATCH);
         }
         if (new File(KEY_INT02_PATH).exists()) {
-            //mMiddleSwitch02Observer.startObserving(KEY_INT02_STATE_MATCH);
+            mMiddleSwitch02Observer.startObserving(KEY_INT02_STATE_MATCH);
         }
         if (new File(KEY_INT03_PATH).exists()) {
-            //mMiddleSwitch03Observer.startObserving(KEY_INT03_STATE_MATCH);
+            mMiddleSwitch03Observer.startObserving(KEY_INT03_STATE_MATCH);
         }
         if (new File(KEY_INT04_PATH).exists()) {
-            //mMiddleSwitch04Observer.startObserving(KEY_INT04_STATE_MATCH);
+            mMiddleSwitch04Observer.startObserving(KEY_INT04_STATE_MATCH);
         }
         if (new File(KEY_INT05_PATH).exists()) {
-            //mMiddleSwitch05Observer.startObserving(KEY_INT05_STATE_MATCH);
+            mMiddleSwitch05Observer.startObserving(KEY_INT05_STATE_MATCH);
         }
         if (new File(KEY_INT06_PATH).exists()) {
-            //mMiddleSwitch06Observer.startObserving(KEY_INT06_STATE_MATCH);
+            mMiddleSwitch06Observer.startObserving(KEY_INT06_STATE_MATCH);
         }
         if (new File(KEY_INT07_PATH).exists()) {
-            //mMiddleSwitch07Observer.startObserving(KEY_INT07_STATE_MATCH);
+            mMiddleSwitch07Observer.startObserving(KEY_INT07_STATE_MATCH);
         }
         if (new File(KEY_INT08_PATH).exists()) {
-            //mMiddleSwitch08Observer.startObserving(KEY_INT08_STATE_MATCH);
+            mMiddleSwitch08Observer.startObserving(KEY_INT08_STATE_MATCH);
         }
         if (new File(KEY_INT09_PATH).exists()) {
-            //mMiddleSwitch09Observer.startObserving(KEY_INT09_STATE_MATCH);
+            mMiddleSwitch09Observer.startObserving(KEY_INT09_STATE_MATCH);
         }
         if (new File(KEY_INT10_PATH).exists()) {
-            //mMiddleSwitch10Observer.startObserving(KEY_INT10_STATE_MATCH);
+            mMiddleSwitch10Observer.startObserving(KEY_INT10_STATE_MATCH);
         }
 
         if (new File(KEY0_INT_01_PATH).exists()) {
@@ -1485,9 +1590,16 @@ public class TcpService extends Service {
         mMotorCtrlHandler = new MotorCtrlHandler();
         mLedCtrlHandler = new LedCtrlHandler();
         mNetworkStatusHandler = new NetworkStatusHandler();
+        mKeyPlugInHandler = new KeyPlugInHandler();
+        mKeyBatNullCheckHandler = new KeyBatNullCheckHandler();
         //绿灯带亮
         //ledSeriesCtrl(on);
         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 100);
+
+        mEthernetManager = (EthernetManager) getSystemService("ethernet");
+        if (null != mEthernetManager) {
+            mEthernetManager.addListener(mEthernetLisener);
+        }
     }
 
     public void acquireWakeLock() {
@@ -1523,6 +1635,16 @@ public class TcpService extends Service {
         unregisterPC2DroidReceiver();
         unregisterBatteryStatusReceiver();
         unRegisterNetworkReceiver();
+        mMiddleSwitch01Observer.stopObserving();
+        mMiddleSwitch02Observer.stopObserving();
+        mMiddleSwitch03Observer.stopObserving();
+        mMiddleSwitch04Observer.stopObserving();
+        mMiddleSwitch05Observer.stopObserving();
+        mMiddleSwitch06Observer.stopObserving();
+        mMiddleSwitch07Observer.stopObserving();
+        mMiddleSwitch08Observer.stopObserving();
+        mMiddleSwitch09Observer.stopObserving();
+        mMiddleSwitch10Observer.stopObserving();
         mBottomSwitch01Observer.stopObserving();
         mBottomSwitch02Observer.stopObserving();
         mBottomSwitch03Observer.stopObserving();
@@ -1752,8 +1874,8 @@ public class TcpService extends Service {
                                 setXmlAuthState(false);
                                 //mLedCtrlHandler.postDelayed(playSoundBoxAuthFailed, 10);
                                 playVoice(R.string.tts_box_auth_failed);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
                                 break;
                             case "02":
                                 break;
@@ -1765,8 +1887,9 @@ public class TcpService extends Service {
                                 Log.e("====", "=============auth failed--unknown");
                                 //mLedCtrlHandler.postDelayed(playSoundBoxAuthFailed, 10);
                                 playVoice(R.string.tts_box_auth_failed);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_OFF, 10);
+                                setXmlAuthState(false);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_OFF, 10);
                                 break;
                         }
                         mBodyRespType = "";
@@ -1780,8 +1903,8 @@ public class TcpService extends Service {
                                 clearSavedMsg();
                                 //mLedCtrlHandler.postDelayed(playSoundBoxUnregSucceed, 10);
                                 playVoice(R.string.tts_box_unreg_succeed);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_OFF, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_OFF, 10);
                                 //send
                                 // TODO: 2019/2/26
                                 break;
@@ -1816,7 +1939,8 @@ public class TcpService extends Service {
                     String result = mBodyString.substring(4, 6);
                     Log.e("====", "========MSG_TYPE_REG_RESPONSE--result=" + result);
                     String savedAuthCode = getSavedAuthCode();
-                    boolean hasAuthCode = ("".equals(savedAuthCode) || "unknown".equals(savedAuthCode)) ? false : true;
+                    //boolean hasAuthCode = ("".equals(savedAuthCode) || "unknown".equals(savedAuthCode)) ? false : true;
+                    boolean hasAuthCode = (savedAuthCode.length() == 20);
                     switch (result) {
                         case "00":
                             String authCode = mBodyString.substring(6, 26);
@@ -1839,7 +1963,8 @@ public class TcpService extends Service {
                                 saveKeyAuthCode(authCode);
                                 switch (currentKeyholeId) {
                                     case "01":
-                                        switchStatusCtrl(SWITCH_01_PATH, false);
+                                        //switchStatusCtrl(SWITCH_01_PATH, false);
+                                        mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                                         break;
                                     case "02":
                                         switchStatusCtrl(SWITCH_02_PATH, false);
@@ -1872,16 +1997,12 @@ public class TcpService extends Service {
                             } else {
                                 //mLedCtrlHandler.postDelayed(playSoundBoxRegSucceed, 10);
                                 playVoice(R.string.tts_box_reg_succeed);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-                                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+                                //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
                                 //箱鉴权
                                 saveAuthCode(authCode);
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (Exception e) {
-
-                                }
-                                sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, mHeadPhoneNum, authCode));
+                                sleep(1000);
+                                sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, tmpPhoneId, authCode));
                             }
 
                             Log.e("====", "=======MSG_TYPE_REG_RESPONSE--01=authCode=" + authCode);
@@ -1890,7 +2011,8 @@ public class TcpService extends Service {
                             break;
                         case "01":
                             //String savedAuthCode = getSavedAuthCode();
-                            sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, mHeadPhoneNum, savedAuthCode));
+                            sleep(1000);
+                            sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, tmpPhoneId, savedAuthCode));
                             //mLedCtrlHandler.postDelayed(playSoundBoxReged, 10);
                             playVoice(R.string.tts_box_reged);
                             break;
@@ -1966,11 +2088,13 @@ public class TcpService extends Service {
                     switch (mBodyString.substring(0, 2)) {
                         case "01":
                             //ota
-                            // TODO: 2019/2/26
                             //mLedCtrlHandler.postDelayed(playSoundBoxUpgrade, 10);
                             playVoice(R.string.tts_box_upgrade);
-                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
-                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+                            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
+                            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+                            Intent otaIntent = new Intent("com.qualcomm.update.start_update_afte");
+                            otaIntent.putExtra("start", true);
+                            mContext.sendBroadcast(otaIntent);
                             break;
                         case "02":
                             //mDroidToKey02Handler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
@@ -2008,6 +2132,7 @@ public class TcpService extends Service {
                             Log.e("====", "======合法弹出-keyHoleId=" + keyHoleId + "---keyId=" + keyId);
                             //mLedCtrlHandler.postDelayed(playSoundNotiRemove, 10);//请取走钥匙扣
                             playVoice(R.string.tts_notify_key_remove);
+                            mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
                             //motor on
                             switch (keyHoleId) {
                                 case "01":
@@ -2156,55 +2281,92 @@ public class TcpService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Log.e("====", "=======mNetworkChangeBroadcastReceiver.action=" + action);
             if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
                         Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
                 if (networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected()) {
                     int type2 = networkInfo.getType();
-                    //NetworkInfo.State.CONNECTING
                     String typeName = networkInfo.getTypeName();//MOBILE,WIFI,ETHERNET
-                    //tv.setText(type2 + "--" + typeName);
                     Log.e("====", "============typeName=" + typeName);
                     Log.e("====", "============type2=" + type2);
-                    /*if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED) {
-                        Log.e("====", "============TYPE_MOBILE=CONNECTED");
-                    }
-                    if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-                        Log.e("====", "============TYPE_WIFI=CONNECTED");
-                    }*/
-                    //if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET).getState() == NetworkInfo.State.CONNECTED) {
-                    //    Log.e("====", "============TYPE_ETHERNET=CONNECTED");
-                    //}
-                    //if () {
                     switch (type2) {
                         case ConnectivityManager.TYPE_MOBILE://移动 网络    2G 3G 4G 都是一样的 实测 mix2s 联通卡
-                            Log.d("Feeee", "有网络");
+                            Log.d("====", "TYPE_MOBILE=有网络");
                             mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
                             mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
-
                             break;
-                        case ConnectivityManager.TYPE_WIFI: //wifi网络
-                            Log.d("Feeee", "wifi");
+                        case ConnectivityManager.TYPE_WIFI://wifi网络
+                            Log.d("====", "TYPE_WIFI=有网络");
                             mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
                             mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
-
                             break;
-
-                        case ConnectivityManager.TYPE_ETHERNET:  //网线连接
-                            Log.d("Feeee", "有网络");
+                        case ConnectivityManager.TYPE_ETHERNET://网线连接
+                            Log.d("====", "TYPE_ETHERNET=有网络");
                             mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
                             mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
                             break;
                     }
-                    //}
                 } else {// 无网络
-                    Log.d("Feeee", "无网络");
                     Log.e("====", "============无网络=");
                     mNetworkStatusHandler.removeCallbacks(mNetworkOffRunnable);
                     mNetworkStatusHandler.postDelayed(mNetworkOffRunnable, 10000);
-
                 }
+            } else if ("android.net.conn.INET_CONDITION_ACTION".equals(action)) {
+                Log.e("====", "=============INET_CONDITION_ACTION");
+                NetworkInfo ni = (NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                Log.e("====", "========ni.getType=" + ni.getType() + "-----ni.getState=" + ni.getState());
+                switch (ni.getType()) {
+                    /*case ConnectivityManager.TYPE_MOBILE://移动 网络    2G 3G 4G 都是一样的 实测 mix2s 联通卡
+                        Log.d("====", "INET_CONDITION_ACTION-TYPE_MOBILE=有网络");
+                        mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
+                        mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
+                        break;
+                    case ConnectivityManager.TYPE_WIFI://wifi网络
+                        Log.d("====", "INET_CONDITION_ACTION-TYPE_WIFI=有网络");
+                        mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
+                        mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
+                        break;*/
+                    case ConnectivityManager.TYPE_ETHERNET://网线连接(手动插网线)
+                        Log.d("====", "INET_CONDITION_ACTION-TYPE_ETHERNET=有网络");
+                        mNetworkStatusHandler.removeCallbacks(mNetworkOnRunnable);
+                        mNetworkStatusHandler.postDelayed(mNetworkOnRunnable, 10000);
+                        break;
+                }
+                //只能触发连接的事件
+                //NetworkInfo ni = (NetworkInfo) intent.getExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+                /*NetworkInfo ni = (NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                Log.d(TAG, "network type:" + (int) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_TYPE));
+                if (null != ni) {
+                    Log.d(TAG, "rcv ethernet action, network info:" + ni);
+                    mEthernetState = ni.getState();
+                    Log.d(TAG, "old state:" + mLastEthernetState + ", new state:" + mEthernetState);
+                    if (mEthernetConnected || isEth0Connected()) {
+                        Log.i(TAG, "以太网从断开到连接状态");
+                        restored = true;
+                    } else if (mLastEthernetState == NetworkInfo.State.CONNECTED) {
+                        Log.i(TAG, "以太网从连接到断开状态");
+                        if (mWifiState == NetworkInfo.State.CONNECTED || mMobileState == NetworkInfo.State.CONNECTED) {
+                            Log.i(TAG, "以太网仍然连接状态，执行恢复网络连接操作");
+                            restored = true;
+                        } else {
+                            disconnect = true;
+                        }
+                    }
+
+                    mLastEthernetState = mEthernetState;
+                    if (restored) {
+                        Log.i(TAG, "网络连接恢复： " + "以太网连接" + "（data）数据连接");
+                        connect(IP, PORT);
+                    }
+
+                    if (disconnect) {
+                        //断网
+                        Log.i(TAG, "网络断开");
+                        disconnect();
+                    }
+                }*/
             }
         }
     };
@@ -2258,6 +2420,7 @@ public class TcpService extends Service {
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         filter.addAction("android.net.wifi.WIFI_STATE_CHANGED");
         filter.addAction("android.net.wifi.STATE_CHANGE");
+        filter.addAction("android.net.conn.INET_CONDITION_ACTION");
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(mNetworkChangeBroadcastReceiver, filter);
     }
@@ -2379,14 +2542,76 @@ public class TcpService extends Service {
                 }
                 setAlarm();
             } else if ("com.erobbing.action.ETHERNET_CHANGE".equals(action)) {
-                String ip = intent.getStringExtra("ip");
-                Log.e("====", "==========ethernet change action, ip:" + ip);
-                if (ip != null) {
-                    if (ip.contains("dhcp")) {
-                        SystemService.start("ethernet_start");
-                    } else if (ip.contains("stop")) {
-                        SystemService.start("ethernet_stop");
+                boolean on = intent.getBooleanExtra("ethernet_switch", false);
+
+                Log.d(TAG, "==========ethernet change action, on:" + on);
+                if (on) {
+                    Log.d(TAG, "==========ethernet change action---on:");
+                    //mEthernetManager = (EthernetManager) context.getSystemService("ethernet");
+                    if (null == mEthernetManager) {
+                        Log.w(TAG, "system does not support ETHERNET!!!");
+                        return;
                     }
+
+                    IpConfiguration config = mEthernetManager.getConfiguration();
+                    Log.w(TAG, "============config=" + config);
+                    boolean isDhcp = intent.getBooleanExtra("dhcp", false);
+                    if (isDhcp) {
+                        Log.w(TAG, "============isDhcp=" + isDhcp);
+                        //set ipconfiguration now
+                        config.ipAssignment = IpAssignment.DHCP;
+                    } else {
+                        String ip = intent.getStringExtra("ip");
+                        String ipmask = intent.getStringExtra("ipmask");//it seems meanless here
+                        String gateway = intent.getStringExtra("gateway");
+                        String dns1 = intent.getStringExtra("dns1");
+                        String dns2 = intent.getStringExtra("dns2");
+
+                        if (null == ip || null == gateway) {
+                            Log.w(TAG, "ip or gateway is empty, do nothing");
+                            return;
+                        }
+                        if (ipmask != null && ipmask.contains("255.255.255.0") && !ip.contains("/24")) {
+                            ip = ip + "/24";
+                        } else if (ipmask != null && ipmask.contains("255.255.0.0") && !ip.contains("/16")) {
+                            ip = ip + "/16";
+                        }
+                        Log.w(TAG, "ip:" + ip + ",ipmask :" + ipmask + ",gateway:" + gateway);
+                        config.ipAssignment = IpAssignment.STATIC;
+                        StaticIpConfiguration staticIpConfiguration = new StaticIpConfiguration();
+                        try {
+                            Constructor<?> laConstructor = LinkAddress.class.getConstructor(String.class);
+                            Log.w(TAG, "ipaddress");
+                            staticIpConfiguration.ipAddress = (LinkAddress) laConstructor.newInstance(ip);
+                            Log.w(TAG, "ipaddress 1");
+                            staticIpConfiguration.gateway = InetAddress.getByName(gateway);
+                            staticIpConfiguration.dnsServers.clear();
+                            Log.w(TAG, "ipaddress 2");
+
+                            if (dns1 != null) {
+                                staticIpConfiguration.dnsServers.add(InetAddress.getByName(dns1));
+                            }
+                            if (dns2 != null) {
+                                staticIpConfiguration.dnsServers.add(InetAddress.getByName(dns2));
+                            }
+
+                            //add default
+                            if (null == dns1 && null == dns2) {
+                                staticIpConfiguration.dnsServers.add(InetAddress.getByName("8.8.8.8"));
+                            }
+                        } catch (Exception e) {
+                            Log.w(TAG, "set ip failed", e);
+                        }
+                        config.setStaticIpConfiguration(staticIpConfiguration);
+                        Log.d(TAG, " current ethernet config:" + config);
+                    }
+                    Log.d(TAG, "==========setConfiguration");
+                    mEthernetManager.setConfiguration(config);
+                    Log.d(TAG, "call service ethernet_start");
+                    SystemService.start("ethernet_start");
+                } else {
+                    Log.d(TAG, "call service ethernet_stop");
+                    SystemService.start("ethernet_stop");
                 }
             }
         }
@@ -2903,6 +3128,21 @@ public class TcpService extends Service {
         return state;
     }
 
+    private String keyIdRead() {
+        String oriString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_id", false, true).successMsg;
+        return reGroupString(oriString);
+    }
+
+    private String keyShopIdRead() {
+        String oriString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/dm_id", false, true).successMsg;
+        return reGroupString(oriString);
+    }
+
+    private String keyBatLeveldRead() {
+        String oriString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
+        return reGroupString(oriString);
+    }
+
     public void allKeysBatteryLevelWrite(String cmd) {
         try {
             FileWriter command = new FileWriter(RW_KEY_BATTERY_PATH);
@@ -3199,6 +3439,60 @@ public class TcpService extends Service {
         }
     }
 
+    public static String read(String fileName) {
+        File f = new File(fileName);
+        if (!f.exists()) {
+            return null;
+        }
+        FileInputStream fs;
+        String result = null;
+        try {
+            fs = new FileInputStream(f);
+            byte[] b = new byte[fs.available()];
+            fs.read(b);
+            fs.close();
+            result = new String(b);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public static boolean isEth0Connected() {
+        String state = read("/sys/class/net/eth0/operstate");
+        //Log.v(TAG, "isEth0Connected:" + state);
+        if (state != null && (state.contains("unknown") || state.contains("up"))) {
+            Log.v(TAG, "eth0 connected");
+            return true;
+        }
+
+        Log.v(TAG, "eth0 disconnected");
+        return false;
+    }
+
+    private Listener mEthernetLisener = new Listener() {
+        @Override
+        public void onAvailabilityChanged(boolean isAvailable) {
+            Log.d("====", "ethernet state changed, isvailable:" + isAvailable);
+            mEthernetConnected = isAvailable;
+            if (isAvailable) {
+                Log.e("====", "===============mEthernetLisener-isAvailable");
+            } else {
+                Log.e("====", "===============mEthernetLisener");
+                /*mLastEthernetState = NetworkInfo.State.DISCONNECTED;
+                //disconnect();
+                if (mWifiState == NetworkInfo.State.CONNECTED || mMobileState == NetworkInfo.State.CONNECTED) {
+                    Log.d(TAG, "restore connection from wifi or moible");
+                    connect(IP, PORT);
+                } else {
+                    Log.d(TAG, "disconnect");
+                    disconnect();
+                }*/
+            }
+        }
+    };
+
     private class MotorCtrlHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -3207,8 +3501,8 @@ public class TcpService extends Service {
                 case HANDLER_MSG_KEY_01_MOTOR_ON:
                     motor01StatusCtrl(true);
                     mMotorCtrlHandler.postDelayed(mMotor01OffIn10S, 6 * 1000);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
                     break;
                 case HANDLER_MSG_KEY_02_MOTOR_ON:
                     motor02StatusCtrl(true);
@@ -3471,6 +3765,26 @@ public class TcpService extends Service {
         }
     }
 
+    private class KeyPlugInHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+
+            }
+        }
+    }
+
+    private class KeyBatNullCheckHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+
+            }
+        }
+    }
+
     private final Runnable playSoundKeyInsert = new Runnable() {
         public void run() {
             playFromRawFile(mContext, R.raw.key_insert);
@@ -3576,8 +3890,8 @@ public class TcpService extends Service {
     private final Runnable mMotor01OffIn10S = new Runnable() {
         public void run() {
             motor01StatusCtrl(false);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
         }
     };
     private final Runnable mMotor02OffIn10S = new Runnable() {
@@ -3641,6 +3955,8 @@ public class TcpService extends Service {
 
     private final Runnable mGreenLed01SlowBlinkRunnable = new Runnable() {
         public void run() {
+            // TODO: 2019/2/27 充满电判断
+
             ledSeriesCtrl(LED_GREEN_01, true);
             sleep(LED_BLINK_SLEEP_TIME);
             ledSeriesCtrl(LED_GREEN_01, false);
@@ -3818,6 +4134,188 @@ public class TcpService extends Service {
             mLedCtrlHandler.postDelayed(mGreenLed10fastBlinkRunnable, LED_FAST_BLINK_TIME);
         }
     };
+
+    ////
+    private final Runnable mKey01PlugInRunnable = new Runnable() {
+        public void run() {
+            ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+            //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+            //如果店面ID 不一致，闪灯， 提示非法归还
+            //如果没有读到店面 ID， 等信息，  启动注册流程
+            String shopId = allKeysShopIdRead();
+            String savedShopId = getSavedShopID();
+            String keyId = allKeysIdRead();
+            currentKeyId = keyId;
+            currentKeyholeId = "01";
+            Log.e("=====", "key01--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+            //if (false) {
+            //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
+            if (shopId.contains("ffffffffffffffffffff")) {
+                //switchStatusCtrl(SWITCH_01_PATH, true);
+                Log.e("====", "===========key01reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                //钥匙扣注册
+                String proAndCity = "01000633";//getSavedProvinceAndCity();
+                String manufacturerID = "88888888";//getSavedManufacturerID();
+                String shopID = "77777777777777777777";//getSavedShopID();
+                //getSavedBoxID();
+                sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+            } else if (shopId.contains("fafafafafafafafafafa")) {
+                //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
+                //playVoice(R.string.tts_key_communicate_err);
+                //mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
+                //isKeyCommunicateErr = true;
+                mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+            } else {
+                Log.e("====", "===key01=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                Log.e("====", "===key01=shopId=" + shopId + "-length=" + shopId.length());
+                if (shopId.contains(savedShopId)) {
+                    //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
+                    playVoice(R.string.tts_key_back_succeed);
+                    //钥匙扣归还
+                    //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                    //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
+                    //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                    ShellUtils.execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                    Log.e("====", "===============key01-back");
+                    //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
+                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                    mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else {
+                    //报警，非法归还
+                    Log.e("====", "===============key01-back-illegal");
+                    //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
+                    playVoice(R.string.tts_key_back_illegal);
+                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                    // TODO: 2019/2/27  上报？
+                }
+            }
+            ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
+            //mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+        }
+    };
+
+    private final Runnable mKey02PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey03PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey04PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey05PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey06PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey07PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey08PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey09PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey10PlugInRunnable = new Runnable() {
+        public void run() {
+
+        }
+    };
+
+    private final Runnable mKey01BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            //KEY_BAT_NULL_CHECK_TIME
+            mKeyBatNullCheckCount--;
+            if (mKeyBatNullCheckCount > 0) {
+                //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                // TODO: 2019/2/28
+                ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+                String keyId = keyIdRead();
+                String shopId = keyShopIdRead();
+                String batLevel = keyBatLeveldRead();
+
+                String savedShopId = getSavedShopID();
+                //currentKeyId = keyId;
+                //currentKeyholeId = "01";
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                    mKeyBatNullCheckCount = 4;
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        ShellUtils.execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_ON, 10);
+                        mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                        // TODO: 2019/2/28 需要上报服务器？
+                    }
+                    mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                    mKeyBatNullCheckCount = 4;
+                }
+                ShellUtils.execCommand("echo of > /sys/class/gpio_switch/switch_ct_01", false);
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                mKeyBatNullCheckCount = 4;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
+                isKeyCommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+            }
+        }
+    };
+
+    /*public boolean keyInfoReadSucceed(String keyHole) {
+        ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+        keyIdRead();
+        keyShopIdRead();
+        keyBatLeveldRead();
+        ShellUtils.execCommand("echo of > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+    }*/
 
     //InfoUtils.playFromRawFile(this, R.raw.noti_new_ver);
     public static void playFromRawFile(Context context, int rawId) {

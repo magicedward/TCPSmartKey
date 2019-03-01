@@ -23,6 +23,7 @@ import com.erobbing.tcpsmartkey.service.codec.MsgEncoder;
 import com.erobbing.tcpsmartkey.util.BCD8421Operater;
 import com.erobbing.tcpsmartkey.util.BitOperator;
 import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
+import com.erobbing.tcpsmartkey.util.ShellUtils;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -242,6 +243,10 @@ public class MainActivity extends AppCompatActivity {
         //ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
         //ShellUtils.execCommand("echo 77777777777777777777 > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
         //ShellUtils.execCommand("echo 4266496677454c4a566c > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
+        //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true));
+        Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
+        //key_st=CommandResult{result=0, successMsg='144', errorMsg=''}
+        //ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true);
         //ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
         //switchStatusCtrl(SWITCH_01_PATH, true);
         //allKeysAuthCodeWrite("4266496677454c4a566c");
@@ -271,6 +276,12 @@ public class MainActivity extends AppCompatActivity {
         }*/
         //clearAuthCode();
         //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", false);
+        ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+        Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg);
+        //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
+        //key_st=CommandResult{result=0, successMsg='144', errorMsg=''}
+        //ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true);
+        ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
         Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());
     }
 
