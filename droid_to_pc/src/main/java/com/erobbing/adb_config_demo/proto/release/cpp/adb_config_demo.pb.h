@@ -294,10 +294,30 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   bool ipdhcp() const;
   void set_ipdhcp(bool value);
 
+  // repeated bool keyStatus = 15;
+  int keystatus_size() const;
+  void clear_keystatus();
+  static const int kKeyStatusFieldNumber = 15;
+  bool keystatus(int index) const;
+  void set_keystatus(int index, bool value);
+  void add_keystatus(bool value);
+  const ::google::protobuf::RepeatedField< bool >&
+      keystatus() const;
+  ::google::protobuf::RepeatedField< bool >*
+      mutable_keystatus();
+
+  // optional int32 keyno = 16;
+  void clear_keyno();
+  static const int kKeynoFieldNumber = 16;
+  ::google::protobuf::int32 keyno() const;
+  void set_keyno(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:com.erobbing.adb_config_demo.Config)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< bool > keystatus_;
+  mutable int _keystatus_cached_byte_size_;
   ::google::protobuf::internal::ArenaStringPtr boxid_;
   ::google::protobuf::internal::ArenaStringPtr keyid_;
   ::google::protobuf::internal::ArenaStringPtr shopid_;
@@ -312,6 +332,7 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::int32 errorcode_;
   bool boxregisted_;
   bool ipdhcp_;
+  ::google::protobuf::int32 keyno_;
   mutable int _cached_size_;
   friend void  protobuf_InitDefaults_adb_5fconfig_5fdemo_2eproto_impl();
   friend void  protobuf_AddDesc_adb_5fconfig_5fdemo_2eproto_impl();
@@ -854,6 +875,50 @@ inline void Config::set_ipdhcp(bool value) {
   
   ipdhcp_ = value;
   // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.ipDhcp)
+}
+
+// repeated bool keyStatus = 15;
+inline int Config::keystatus_size() const {
+  return keystatus_.size();
+}
+inline void Config::clear_keystatus() {
+  keystatus_.Clear();
+}
+inline bool Config::keystatus(int index) const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.keyStatus)
+  return keystatus_.Get(index);
+}
+inline void Config::set_keystatus(int index, bool value) {
+  keystatus_.Set(index, value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyStatus)
+}
+inline void Config::add_keystatus(bool value) {
+  keystatus_.Add(value);
+  // @@protoc_insertion_point(field_add:com.erobbing.adb_config_demo.Config.keyStatus)
+}
+inline const ::google::protobuf::RepeatedField< bool >&
+Config::keystatus() const {
+  // @@protoc_insertion_point(field_list:com.erobbing.adb_config_demo.Config.keyStatus)
+  return keystatus_;
+}
+inline ::google::protobuf::RepeatedField< bool >*
+Config::mutable_keystatus() {
+  // @@protoc_insertion_point(field_mutable_list:com.erobbing.adb_config_demo.Config.keyStatus)
+  return &keystatus_;
+}
+
+// optional int32 keyno = 16;
+inline void Config::clear_keyno() {
+  keyno_ = 0;
+}
+inline ::google::protobuf::int32 Config::keyno() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.keyno)
+  return keyno_;
+}
+inline void Config::set_keyno(::google::protobuf::int32 value) {
+  
+  keyno_ = value;
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyno)
 }
 
 inline const Config* Config::internal_default_instance() {

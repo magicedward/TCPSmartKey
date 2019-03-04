@@ -65,6 +65,11 @@ public class MyLocalConfig extends LocalConfigServer {
                     builder.setProvinceID(sp.getString("province_id", ""));
                     builder.setCityID(sp.getString("city_id", ""));
                     builder.setManufacturerID(sp.getString("manufacturer_id", ""));
+                    for (int i = 0; i < 10; i++) {
+                        String keyId = sp.getString("key_hole_" + String.format("%02x", i + 1), "");
+                        Log.e("====", "======cmdReadConfig_VALUE-keyId=" + keyId);
+                        builder.addKeyStatus(keyId.length() >= 12 ? true : false);
+                    }
                     Log.d(TAG, "read config begin.2..");
 
                     if (null != ethernetManager) {
@@ -112,6 +117,7 @@ public class MyLocalConfig extends LocalConfigServer {
 
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
                     SharedPreferences.Editor ed = sp.edit();
+                    ed.clear();
                     ed.putString("shop_id", config.getShopID());
                     ed.putString("box_id", config.getBoxID());
                     ed.putString("key_id", config.getKeyID());
@@ -162,8 +168,9 @@ public class MyLocalConfig extends LocalConfigServer {
                     } else {
                         intent.putExtra("ethernet_switch", false);
                     }
-
-                    mService.sendBroadcast(intent);
+                    if (!"00".equals(config.getKeyID())) {
+                        mService.sendBroadcast(intent);
+                    }
                 }
             });
 
@@ -173,7 +180,7 @@ public class MyLocalConfig extends LocalConfigServer {
                     mLog.i("注册箱子");
                     android.util.Log.e("====", "==========注册箱子");
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
-                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_REG");
+                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_REG_BOX");
                     intent.putExtra("shop_id", sp.getString("shop_id", "77777777777777777777"));
                     intent.putExtra("box_id", sp.getString("box_id", "019999999998"));
                     intent.putExtra("key_id", sp.getString("key_id", "007777777778"));
@@ -193,7 +200,7 @@ public class MyLocalConfig extends LocalConfigServer {
                 public void doCmd(long cmd, byte[] data) throws Exception {
                     mLog.i("注销箱子");
                     android.util.Log.e("====", "==========注销箱子");
-                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_UNREG");
+                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_UNREG_BOX");
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.clear();
@@ -217,6 +224,22 @@ public class MyLocalConfig extends LocalConfigServer {
                     ed.putString("auth_code", "unknown");
                     ed.commit();
 
+                    AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
+                    builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
+                    send_resp(cmd, builder.build());
+                }
+            });
+
+            put(AdbConfigDemo.Cmd.cmdUnregisterKey_VALUE, new DealerBase() {
+                @Override
+                public void doCmd(long cmd, byte[] data) throws Exception {
+                    mLog.i("注销钥匙");
+                    // 解析读到的数据
+                    AdbConfigDemo.Config config = AdbConfigDemo.Config.parseFrom(data);
+                    Intent intent = new Intent("com.erobbing.action.PC_TO_DROID_UNREG_KEY");
+                    intent.putExtra("keynum", String.format("%02x", config.getKeyno()));
+                    Log.d("====", "cmdUnregisterKey_VALUE-keynum=" + String.format("%02x", config.getKeyno()));
+                    mService.sendBroadcast(intent);
                     AdbConfigDemo.Config.Builder builder = AdbConfigDemo.Config.newBuilder();
                     builder.setErrorCode(AdbConfigDemo.ErrorCode.OK_VALUE);
                     send_resp(cmd, builder.build());

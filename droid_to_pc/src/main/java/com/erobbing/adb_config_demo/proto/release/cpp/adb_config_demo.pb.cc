@@ -40,7 +40,7 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
       "adb_config_demo.proto");
   GOOGLE_CHECK(file != NULL);
   Config_descriptor_ = file->message_type(0);
-  static const int Config_offsets_[14] = {
+  static const int Config_offsets_[16] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, errorcode_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, boxid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keyid_),
@@ -55,6 +55,8 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, dns2_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, gateway_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, ipdhcp_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keystatus_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keyno_),
   };
   Config_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -111,18 +113,19 @@ void protobuf_AddDesc_adb_5fconfig_5fdemo_2eproto_impl() {
   protobuf_InitDefaults_adb_5fconfig_5fdemo_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025adb_config_demo.proto\022\034com.erobbing.ad"
-    "b_config_demo\"\363\001\n\006Config\022\021\n\terrorCode\030\001 "
+    "b_config_demo\"\225\002\n\006Config\022\021\n\terrorCode\030\001 "
     "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho"
     "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin"
     "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur"
     "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014"
     "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r "
-    "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010*6\n\tErrorCode\022\006\n\002OK\020\000"
-    "\022\020\n\014COMMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003"
-    "Cmd\022\r\n\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n"
-    "\016cmdWriteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n"
-    "\020cmdUnregisterBox\020\004\022\024\n\020cmdUnregisterKey\020"
-    "\005\022\024\n\020cmdClearAuthCode\020\006b\006proto3", 511);
+    "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010\022\021\n\tkeyStatus\030\017 \003(\010\022\r"
+    "\n\005keyno\030\020 \001(\005*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014CO"
+    "MMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n"
+    "\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWr"
+    "iteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUn"
+    "registerBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020c"
+    "mdClearAuthCode\020\006b\006proto3", 545);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "adb_config_demo.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_adb_5fconfig_5fdemo_2eproto);
@@ -201,6 +204,8 @@ const int Config::kDns1FieldNumber;
 const int Config::kDns2FieldNumber;
 const int Config::kGatewayFieldNumber;
 const int Config::kIpDhcpFieldNumber;
+const int Config::kKeyStatusFieldNumber;
+const int Config::kKeynoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Config::Config()
@@ -233,8 +238,8 @@ void Config::SharedCtor() {
   dns1_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns2_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   gateway_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(&errorcode_, 0, reinterpret_cast<char*>(&ipdhcp_) -
-    reinterpret_cast<char*>(&errorcode_) + sizeof(ipdhcp_));
+  ::memset(&errorcode_, 0, reinterpret_cast<char*>(&keyno_) -
+    reinterpret_cast<char*>(&errorcode_) + sizeof(keyno_));
   _cached_size_ = 0;
 }
 
@@ -307,16 +312,17 @@ void Config::Clear() {
   provinceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   cityid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   manufacturerid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ZR_(ipdhcp_, keyno_);
   ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ipmask_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   gateway_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ipdhcp_ = false;
 
 #undef ZR_HELPER_
 #undef ZR_
 
+  keystatus_.Clear();
 }
 
 bool Config::MergePartialFromCodedStream(
@@ -325,7 +331,7 @@ bool Config::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:com.erobbing.adb_config_demo.Config)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(16383);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -556,6 +562,39 @@ bool Config::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(122)) goto parse_keyStatus;
+        break;
+      }
+
+      // repeated bool keyStatus = 15;
+      case 15: {
+        if (tag == 122) {
+         parse_keyStatus:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, this->mutable_keystatus())));
+        } else if (tag == 120) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 1, 122, input, this->mutable_keystatus())));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(128)) goto parse_keyno;
+        break;
+      }
+
+      // optional int32 keyno = 16;
+      case 16: {
+        if (tag == 128) {
+         parse_keyno:
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &keyno_)));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -709,6 +748,21 @@ void Config::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(14, this->ipdhcp(), output);
   }
 
+  // repeated bool keyStatus = 15;
+  if (this->keystatus_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(15, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_keystatus_cached_byte_size_);
+  }
+  for (int i = 0; i < this->keystatus_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteBoolNoTag(
+      this->keystatus(i), output);
+  }
+
+  // optional int32 keyno = 16;
+  if (this->keyno() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(16, this->keyno(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:com.erobbing.adb_config_demo.Config)
 }
 
@@ -852,6 +906,25 @@ void Config::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(14, this->ipdhcp(), target);
   }
 
+  // repeated bool keyStatus = 15;
+  if (this->keystatus_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      15,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _keystatus_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->keystatus_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteBoolNoTagToArray(this->keystatus(i), target);
+  }
+
+  // optional int32 keyno = 16;
+  if (this->keyno() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(16, this->keyno(), target);
+  }
+
   // @@protoc_insertion_point(serialize_to_array_end:com.erobbing.adb_config_demo.Config)
   return target;
 }
@@ -954,6 +1027,29 @@ size_t Config::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
+  // optional int32 keyno = 16;
+  if (this->keyno() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->keyno());
+  }
+
+  // repeated bool keyStatus = 15;
+  {
+    size_t data_size = 0;
+    unsigned int count = this->keystatus_size();
+    data_size = 1UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _keystatus_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -987,6 +1083,7 @@ void Config::MergeFrom(const Config& from) {
 
 void Config::UnsafeMergeFrom(const Config& from) {
   GOOGLE_DCHECK(&from != this);
+  keystatus_.UnsafeMergeFrom(from.keystatus_);
   if (from.errorcode() != 0) {
     set_errorcode(from.errorcode());
   }
@@ -1040,6 +1137,9 @@ void Config::UnsafeMergeFrom(const Config& from) {
   if (from.ipdhcp() != 0) {
     set_ipdhcp(from.ipdhcp());
   }
+  if (from.keyno() != 0) {
+    set_keyno(from.keyno());
+  }
 }
 
 void Config::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1080,6 +1180,8 @@ void Config::InternalSwap(Config* other) {
   dns2_.Swap(&other->dns2_);
   gateway_.Swap(&other->gateway_);
   std::swap(ipdhcp_, other->ipdhcp_);
+  keystatus_.UnsafeArenaSwap(&other->keystatus_);
+  std::swap(keyno_, other->keyno_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1619,6 +1721,50 @@ void Config::set_ipdhcp(bool value) {
   
   ipdhcp_ = value;
   // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.ipDhcp)
+}
+
+// repeated bool keyStatus = 15;
+int Config::keystatus_size() const {
+  return keystatus_.size();
+}
+void Config::clear_keystatus() {
+  keystatus_.Clear();
+}
+bool Config::keystatus(int index) const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.keyStatus)
+  return keystatus_.Get(index);
+}
+void Config::set_keystatus(int index, bool value) {
+  keystatus_.Set(index, value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyStatus)
+}
+void Config::add_keystatus(bool value) {
+  keystatus_.Add(value);
+  // @@protoc_insertion_point(field_add:com.erobbing.adb_config_demo.Config.keyStatus)
+}
+const ::google::protobuf::RepeatedField< bool >&
+Config::keystatus() const {
+  // @@protoc_insertion_point(field_list:com.erobbing.adb_config_demo.Config.keyStatus)
+  return keystatus_;
+}
+::google::protobuf::RepeatedField< bool >*
+Config::mutable_keystatus() {
+  // @@protoc_insertion_point(field_mutable_list:com.erobbing.adb_config_demo.Config.keyStatus)
+  return &keystatus_;
+}
+
+// optional int32 keyno = 16;
+void Config::clear_keyno() {
+  keyno_ = 0;
+}
+::google::protobuf::int32 Config::keyno() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.keyno)
+  return keyno_;
+}
+void Config::set_keyno(::google::protobuf::int32 value) {
+  
+  keyno_ = value;
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyno)
 }
 
 inline const Config* Config::internal_default_instance() {

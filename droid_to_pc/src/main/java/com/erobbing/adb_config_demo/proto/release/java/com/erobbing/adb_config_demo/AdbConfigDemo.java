@@ -496,6 +496,40 @@ public final class AdbConfigDemo {
      * <code>optional bool ipDhcp = 14;</code>
      */
     boolean getIpDhcp();
+
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    java.util.List<java.lang.Boolean> getKeyStatusList();
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    int getKeyStatusCount();
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    boolean getKeyStatus(int index);
+
+    /**
+     * <pre>
+     * 要操作的钥匙扣号 [1..10]
+     * </pre>
+     *
+     * <code>optional int32 keyno = 16;</code>
+     */
+    int getKeyno();
   }
   /**
    * <pre>
@@ -527,6 +561,8 @@ public final class AdbConfigDemo {
       dns2_ = "";
       gateway_ = "";
       ipDhcp_ = false;
+      keyStatus_ = java.util.Collections.emptyList();
+      keyno_ = 0;
     }
 
     @java.lang.Override
@@ -635,6 +671,32 @@ public final class AdbConfigDemo {
               ipDhcp_ = input.readBool();
               break;
             }
+            case 120: {
+              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+                keyStatus_ = new java.util.ArrayList<java.lang.Boolean>();
+                mutable_bitField0_ |= 0x00004000;
+              }
+              keyStatus_.add(input.readBool());
+              break;
+            }
+            case 122: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000) && input.getBytesUntilLimit() > 0) {
+                keyStatus_ = new java.util.ArrayList<java.lang.Boolean>();
+                mutable_bitField0_ |= 0x00004000;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                keyStatus_.add(input.readBool());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 128: {
+
+              keyno_ = input.readInt32();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -643,6 +705,9 @@ public final class AdbConfigDemo {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+          keyStatus_ = java.util.Collections.unmodifiableList(keyStatus_);
+        }
         makeExtensionsImmutable();
       }
     }
@@ -658,6 +723,7 @@ public final class AdbConfigDemo {
               com.erobbing.adb_config_demo.AdbConfigDemo.Config.class, com.erobbing.adb_config_demo.AdbConfigDemo.Config.Builder.class);
     }
 
+    private int bitField0_;
     public static final int ERRORCODE_FIELD_NUMBER = 1;
     private int errorCode_;
     /**
@@ -1115,6 +1181,54 @@ public final class AdbConfigDemo {
       return ipDhcp_;
     }
 
+    public static final int KEYSTATUS_FIELD_NUMBER = 15;
+    private java.util.List<java.lang.Boolean> keyStatus_;
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    public java.util.List<java.lang.Boolean>
+        getKeyStatusList() {
+      return keyStatus_;
+    }
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    public int getKeyStatusCount() {
+      return keyStatus_.size();
+    }
+    /**
+     * <pre>
+     * [0..9] true: 钥匙已注册，false: 钥匙未注册
+     * </pre>
+     *
+     * <code>repeated bool keyStatus = 15;</code>
+     */
+    public boolean getKeyStatus(int index) {
+      return keyStatus_.get(index);
+    }
+    private int keyStatusMemoizedSerializedSize = -1;
+
+    public static final int KEYNO_FIELD_NUMBER = 16;
+    private int keyno_;
+    /**
+     * <pre>
+     * 要操作的钥匙扣号 [1..10]
+     * </pre>
+     *
+     * <code>optional int32 keyno = 16;</code>
+     */
+    public int getKeyno() {
+      return keyno_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1127,6 +1241,7 @@ public final class AdbConfigDemo {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       if (errorCode_ != 0) {
         output.writeInt32(1, errorCode_);
       }
@@ -1168,6 +1283,16 @@ public final class AdbConfigDemo {
       }
       if (ipDhcp_ != false) {
         output.writeBool(14, ipDhcp_);
+      }
+      if (getKeyStatusList().size() > 0) {
+        output.writeUInt32NoTag(122);
+        output.writeUInt32NoTag(keyStatusMemoizedSerializedSize);
+      }
+      for (int i = 0; i < keyStatus_.size(); i++) {
+        output.writeBoolNoTag(keyStatus_.get(i));
+      }
+      if (keyno_ != 0) {
+        output.writeInt32(16, keyno_);
       }
     }
 
@@ -1221,6 +1346,21 @@ public final class AdbConfigDemo {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(14, ipDhcp_);
       }
+      {
+        int dataSize = 0;
+        dataSize = 1 * getKeyStatusList().size();
+        size += dataSize;
+        if (!getKeyStatusList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        keyStatusMemoizedSerializedSize = dataSize;
+      }
+      if (keyno_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(16, keyno_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -1265,6 +1405,10 @@ public final class AdbConfigDemo {
           .equals(other.getGateway());
       result = result && (getIpDhcp()
           == other.getIpDhcp());
+      result = result && getKeyStatusList()
+          .equals(other.getKeyStatusList());
+      result = result && (getKeyno()
+          == other.getKeyno());
       return result;
     }
 
@@ -1305,6 +1449,12 @@ public final class AdbConfigDemo {
       hash = (37 * hash) + IPDHCP_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getIpDhcp());
+      if (getKeyStatusCount() > 0) {
+        hash = (37 * hash) + KEYSTATUS_FIELD_NUMBER;
+        hash = (53 * hash) + getKeyStatusList().hashCode();
+      }
+      hash = (37 * hash) + KEYNO_FIELD_NUMBER;
+      hash = (53 * hash) + getKeyno();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1455,6 +1605,10 @@ public final class AdbConfigDemo {
 
         ipDhcp_ = false;
 
+        keyStatus_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00004000);
+        keyno_ = 0;
+
         return this;
       }
 
@@ -1477,6 +1631,8 @@ public final class AdbConfigDemo {
 
       public com.erobbing.adb_config_demo.AdbConfigDemo.Config buildPartial() {
         com.erobbing.adb_config_demo.AdbConfigDemo.Config result = new com.erobbing.adb_config_demo.AdbConfigDemo.Config(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         result.errorCode_ = errorCode_;
         result.boxID_ = boxID_;
         result.keyID_ = keyID_;
@@ -1491,6 +1647,13 @@ public final class AdbConfigDemo {
         result.dns2_ = dns2_;
         result.gateway_ = gateway_;
         result.ipDhcp_ = ipDhcp_;
+        if (((bitField0_ & 0x00004000) == 0x00004000)) {
+          keyStatus_ = java.util.Collections.unmodifiableList(keyStatus_);
+          bitField0_ = (bitField0_ & ~0x00004000);
+        }
+        result.keyStatus_ = keyStatus_;
+        result.keyno_ = keyno_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -1585,6 +1748,19 @@ public final class AdbConfigDemo {
         if (other.getIpDhcp() != false) {
           setIpDhcp(other.getIpDhcp());
         }
+        if (!other.keyStatus_.isEmpty()) {
+          if (keyStatus_.isEmpty()) {
+            keyStatus_ = other.keyStatus_;
+            bitField0_ = (bitField0_ & ~0x00004000);
+          } else {
+            ensureKeyStatusIsMutable();
+            keyStatus_.addAll(other.keyStatus_);
+          }
+          onChanged();
+        }
+        if (other.getKeyno() != 0) {
+          setKeyno(other.getKeyno());
+        }
         onChanged();
         return this;
       }
@@ -1610,6 +1786,7 @@ public final class AdbConfigDemo {
         }
         return this;
       }
+      private int bitField0_;
 
       private int errorCode_ ;
       /**
@@ -2591,6 +2768,138 @@ public final class AdbConfigDemo {
         onChanged();
         return this;
       }
+
+      private java.util.List<java.lang.Boolean> keyStatus_ = java.util.Collections.emptyList();
+      private void ensureKeyStatusIsMutable() {
+        if (!((bitField0_ & 0x00004000) == 0x00004000)) {
+          keyStatus_ = new java.util.ArrayList<java.lang.Boolean>(keyStatus_);
+          bitField0_ |= 0x00004000;
+         }
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public java.util.List<java.lang.Boolean>
+          getKeyStatusList() {
+        return java.util.Collections.unmodifiableList(keyStatus_);
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public int getKeyStatusCount() {
+        return keyStatus_.size();
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public boolean getKeyStatus(int index) {
+        return keyStatus_.get(index);
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public Builder setKeyStatus(
+          int index, boolean value) {
+        ensureKeyStatusIsMutable();
+        keyStatus_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public Builder addKeyStatus(boolean value) {
+        ensureKeyStatusIsMutable();
+        keyStatus_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public Builder addAllKeyStatus(
+          java.lang.Iterable<? extends java.lang.Boolean> values) {
+        ensureKeyStatusIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, keyStatus_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * [0..9] true: 钥匙已注册，false: 钥匙未注册
+       * </pre>
+       *
+       * <code>repeated bool keyStatus = 15;</code>
+       */
+      public Builder clearKeyStatus() {
+        keyStatus_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00004000);
+        onChanged();
+        return this;
+      }
+
+      private int keyno_ ;
+      /**
+       * <pre>
+       * 要操作的钥匙扣号 [1..10]
+       * </pre>
+       *
+       * <code>optional int32 keyno = 16;</code>
+       */
+      public int getKeyno() {
+        return keyno_;
+      }
+      /**
+       * <pre>
+       * 要操作的钥匙扣号 [1..10]
+       * </pre>
+       *
+       * <code>optional int32 keyno = 16;</code>
+       */
+      public Builder setKeyno(int value) {
+        
+        keyno_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 要操作的钥匙扣号 [1..10]
+       * </pre>
+       *
+       * <code>optional int32 keyno = 16;</code>
+       */
+      public Builder clearKeyno() {
+        
+        keyno_ = 0;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -2655,18 +2964,19 @@ public final class AdbConfigDemo {
   static {
     java.lang.String[] descriptorData = {
       "\n\025adb_config_demo.proto\022\034com.erobbing.ad" +
-      "b_config_demo\"\363\001\n\006Config\022\021\n\terrorCode\030\001 " +
+      "b_config_demo\"\225\002\n\006Config\022\021\n\terrorCode\030\001 " +
       "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho" +
       "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin" +
       "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur" +
       "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014" +
       "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r " +
-      "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010*6\n\tErrorCode\022\006\n\002OK\020\000" +
-      "\022\020\n\014COMMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003" +
-      "Cmd\022\r\n\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n",
-      "\016cmdWriteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n" +
-      "\020cmdUnregisterBox\020\004\022\024\n\020cmdUnregisterKey\020" +
-      "\005\022\024\n\020cmdClearAuthCode\020\006b\006proto3"
+      "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010\022\021\n\tkeyStatus\030\017 \003(\010\022\r" +
+      "\n\005keyno\030\020 \001(\005*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014CO" +
+      "MMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n",
+      "\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWr" +
+      "iteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUn" +
+      "registerBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020c" +
+      "mdClearAuthCode\020\006b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2685,7 +2995,7 @@ public final class AdbConfigDemo {
     internal_static_com_erobbing_adb_config_demo_Config_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_erobbing_adb_config_demo_Config_descriptor,
-        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", "Ip", "Ipmask", "Dns1", "Dns2", "Gateway", "IpDhcp", });
+        new java.lang.String[] { "ErrorCode", "BoxID", "KeyID", "ShopID", "BoxRegisted", "ProvinceID", "CityID", "ManufacturerID", "Ip", "Ipmask", "Dns1", "Dns2", "Gateway", "IpDhcp", "KeyStatus", "Keyno", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
