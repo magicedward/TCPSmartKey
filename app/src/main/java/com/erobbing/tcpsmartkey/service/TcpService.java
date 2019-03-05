@@ -277,13 +277,32 @@ public class TcpService extends Service {
     private static final String LED_GREEN_08 = "/sys/class/leds/led-g-08/brightness";
     private static final String LED_GREEN_09 = "/sys/class/leds/led-g-09/brightness";
     private static final String LED_GREEN_10 = "/sys/class/leds/led-g-10/brightness";
-    private static final long LED_SLOW_BLINK_TIME = 5000;
+    private static final long LED_SLOW_BLINK_TIME = 8000;
     private static final long LED_FAST_BLINK_TIME = 200;
     private static final long LED_BLINK_SLEEP_TIME = 100;
-    private int fastBlinkCount = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount01 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount02 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount03 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount04 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount05 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount06 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount07 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount08 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount09 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+    private int fastBlinkCount10 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
 
     private static final long KEY_BAT_NULL_CHECK_TIME = 3000;
-    private int mKeyBatNullCheckCount = 3;
+    private static final int KEY_BAT_NULL_CHECK_COUNT = 3;
+    private int mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey03BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey04BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey05BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey06BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey07BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey08BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey09BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+    private int mKey10BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
 
     private static final long MOTOR_AUTO_OFF_TIME = 10 * 1000;
 
@@ -295,38 +314,47 @@ public class TcpService extends Service {
     private boolean isKey02On = false;
     private boolean isKey02MiddleOn = false;
     private boolean isKey02BottomOn = false;
+    private boolean isKey02BottomStatus = false;
 
     private boolean isKey03On = false;
     private boolean isKey03MiddleOn = false;
     private boolean isKey03BottomOn = false;
+    private boolean isKey03BottomStatus = false;
 
     private boolean isKey04On = false;
     private boolean isKey04MiddleOn = false;
     private boolean isKey04BottomOn = false;
+    private boolean isKey04BottomStatus = false;
 
     private boolean isKey05On = false;
     private boolean isKey05MiddleOn = false;
     private boolean isKey05BottomOn = false;
+    private boolean isKey05BottomStatus = false;
 
     private boolean isKey06On = false;
     private boolean isKey06MiddleOn = false;
     private boolean isKey06BottomOn = false;
+    private boolean isKey06BottomStatus = false;
 
     private boolean isKey07On = false;
     private boolean isKey07MiddleOn = false;
     private boolean isKey07BottomOn = false;
+    private boolean isKey07BottomStatus = false;
 
     private boolean isKey08On = false;
     private boolean isKey08MiddleOn = false;
     private boolean isKey08BottomOn = false;
+    private boolean isKey08BottomStatus = false;
 
     private boolean isKey09On = false;
     private boolean isKey09MiddleOn = false;
     private boolean isKey09BottomOn = false;
+    private boolean isKey09BottomStatus = false;
 
     private boolean isKey10On = false;
     private boolean isKey10MiddleOn = false;
     private boolean isKey10BottomOn = false;
+    private boolean isKey10BottomStatus = false;
 
     private boolean isAllKeysCpuBus = true;
     private String IdReadFromKeys = "";
@@ -517,8 +545,18 @@ public class TcpService extends Service {
     ConnectivityManager mConnectivityManager;
     private boolean mConnected = false;
     private EthernetManager mEthernetManager;
-    private boolean isKeyCommunicateErr = false;
+    private boolean isKey01CommunicateErr = false;
+    private boolean isKey02CommunicateErr = false;
+    private boolean isKey03CommunicateErr = false;
+    private boolean isKey04CommunicateErr = false;
+    private boolean isKey05CommunicateErr = false;
+    private boolean isKey06CommunicateErr = false;
+    private boolean isKey07CommunicateErr = false;
+    private boolean isKey08CommunicateErr = false;
+    private boolean isKey09CommunicateErr = false;
+    private boolean isKey10CommunicateErr = false;
     private boolean mEthernetConnected = false;
+    private final Object mKeyCommunicationLock = new Object();
 
     private final UEventObserver mMiddleSwitch01Observer = new UEventObserver() {
         @Override
@@ -546,13 +584,13 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key01-illegal-out-");
-                        if (!isKeyCommunicateErr) {
+                        if (!isKey01CommunicateErr) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
-                    isKeyCommunicateErr = false;
+                    isKey01CommunicateErr = false;
                     clearSavedKeyId("key_hole_01");
                 }
                 isKey01BottomStatus = false;
@@ -567,7 +605,36 @@ public class TcpService extends Service {
             isKey02MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey02MiddleOn) {
+
             } else {
+                if (isKey02BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "02" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key02-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key02-illegal-out-");
+                        if (!isKey02CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey02CommunicateErr = false;
+                    clearSavedKeyId("key_hole_02");
+                }
+                isKey02BottomStatus = false;
             }
         }
     };
@@ -578,7 +645,36 @@ public class TcpService extends Service {
             isKey03MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey03MiddleOn) {
+
             } else {
+                if (isKey03BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "03" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key03-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key03-illegal-out-");
+                        if (!isKey03CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey03CommunicateErr = false;
+                    clearSavedKeyId("key_hole_03");
+                }
+                isKey03BottomStatus = false;
             }
         }
     };
@@ -589,7 +685,36 @@ public class TcpService extends Service {
             isKey04MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey04MiddleOn) {
+
             } else {
+                if (isKey04BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "04" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key04-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key04-illegal-out-");
+                        if (!isKey04CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey04CommunicateErr = false;
+                    clearSavedKeyId("key_hole_04");
+                }
+                isKey04BottomStatus = false;
             }
         }
     };
@@ -600,7 +725,36 @@ public class TcpService extends Service {
             isKey05MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey05MiddleOn) {
+
             } else {
+                if (isKey05BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "05" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key05-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key05-illegal-out-");
+                        if (!isKey05CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey05CommunicateErr = false;
+                    clearSavedKeyId("key_hole_05");
+                }
+                isKey05BottomStatus = false;
             }
         }
     };
@@ -611,7 +765,36 @@ public class TcpService extends Service {
             isKey06MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey06MiddleOn) {
+
             } else {
+                if (isKey06BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "06" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key06-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key06-illegal-out-");
+                        if (!isKey06CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey06CommunicateErr = false;
+                    clearSavedKeyId("key_hole_06");
+                }
+                isKey06BottomStatus = false;
             }
         }
     };
@@ -622,7 +805,36 @@ public class TcpService extends Service {
             isKey07MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey07MiddleOn) {
+
             } else {
+                if (isKey07BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "07" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key07-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key07-illegal-out-");
+                        if (!isKey07CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey07CommunicateErr = false;
+                    clearSavedKeyId("key_hole_07");
+                }
+                isKey07BottomStatus = false;
             }
         }
     };
@@ -633,7 +845,36 @@ public class TcpService extends Service {
             isKey08MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey08MiddleOn) {
+
             } else {
+                if (isKey08BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "08" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key08-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key08-illegal-out-");
+                        if (!isKey08CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey08CommunicateErr = false;
+                    clearSavedKeyId("key_hole_08");
+                }
+                isKey08BottomStatus = false;
             }
         }
     };
@@ -644,7 +885,36 @@ public class TcpService extends Service {
             isKey09MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey09MiddleOn) {
+
             } else {
+                if (isKey09BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "09" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key09-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key09-illegal-out-");
+                        if (!isKey09CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey09CommunicateErr = false;
+                    clearSavedKeyId("key_hole_09");
+                }
+                isKey09BottomStatus = false;
             }
         }
     };
@@ -655,7 +925,36 @@ public class TcpService extends Service {
             isKey10MiddleOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
             //handler open motor
             if (isKey10MiddleOn) {
+
             } else {
+                if (isKey10BottomStatus) {
+                    mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                    boolean isLegal = getXmlKeyOutLegal();
+                    if (isLegal) {
+                        //声音提示弹出
+                        //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
+                        //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "10" + "3b" + "00" + "3b" + getTimeHexString()));
+                        Log.e("====", "=========key10-normal-out-");
+                        //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
+                        playVoice(R.string.tts_key_out);
+                        setXmlKeyOutLegal(false);
+                    } else {
+                        //  提示非法
+                        Log.e("====", "=========key10-illegal-out-");
+                        if (!isKey10CommunicateErr) {
+                            playVoice(R.string.tts_key_out_illegal);
+                        }
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
+                        // TODO: 2019/2/28 上报服务器 done
+                    }
+                    isKey10CommunicateErr = false;
+                    clearSavedKeyId("key_hole_10");
+                }
+                isKey10BottomStatus = false;
             }
         }
     };
@@ -679,87 +978,12 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch02Observer", "onUEvent.event.toString()=" + event.toString());
             isKey02BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mDroidToKey04Handler.postDelayed(playSoundKeyInsert, 50);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+            isKey02BottomStatus = true;
             if (isKey02BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_02", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "02";
-                Log.e("=====", "key02--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key02reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key02=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===kwy02=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "02" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key02-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key01-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_02", false);
+                mKeyPlugInHandler.postDelayed(mKey02PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "02" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key02-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key02-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey02PlugInRunnable);
             }
-
         }
     };
     private final UEventObserver mBottomSwitch03Observer = new UEventObserver() {
@@ -767,84 +991,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch03Observer", "onUEvent.event.toString()=" + event.toString());
             isKey03BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+            isKey03BottomStatus = true;
             if (isKey03BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_03", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "03";
-                Log.e("=====", "key03--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key03reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key03=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key03=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "03" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key03-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key03-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_03", false);
+                mKeyPlugInHandler.postDelayed(mKey03PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "03" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key03-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key03-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey03PlugInRunnable);
             }
         }
     };
@@ -853,84 +1004,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch04Observer", "onUEvent.event.toString()=" + event.toString());
             isKey04BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+            isKey04BottomStatus = true;
             if (isKey04BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_04", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "04";
-                Log.e("=====", "key04--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key04reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key04=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key04=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "04" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key04-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key04-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_04", false);
+                mKeyPlugInHandler.postDelayed(mKey04PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "04" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key04-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key04-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey04PlugInRunnable);
             }
         }
     };
@@ -939,85 +1017,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch05Observer", "onUEvent.event.toString()=" + event.toString());
             isKey05BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
-
+            isKey05BottomStatus = true;
             if (isKey05BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_05", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "05";
-                Log.e("=====", "key05--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key05reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key05=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key05=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "05" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key05-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key05-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_05", false);
+                mKeyPlugInHandler.postDelayed(mKey05PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "05" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key05-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key05-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey05PlugInRunnable);
             }
         }
     };
@@ -1026,84 +1030,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch06Observer", "onUEvent.event.toString()=" + event.toString());
             isKey06BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+            isKey06BottomStatus = true;
             if (isKey06BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_06", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "06";
-                Log.e("=====", "key06--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key06reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key06=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key06=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "06" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key06-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key06-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_out_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_06", false);
+                mKeyPlugInHandler.postDelayed(mKey06PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "06" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key06-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key06-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 20);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey06PlugInRunnable);
             }
         }
     };
@@ -1112,84 +1043,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch07Observer", "onUEvent.event.toString()=" + event.toString());
             isKey07BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+            isKey07BottomStatus = true;
             if (isKey07BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_07", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "07";
-                Log.e("=====", "key07--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key07reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key07=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key07=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "07" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key07-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key07-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_07", false);
+                mKeyPlugInHandler.postDelayed(mKey07PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "07" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key07-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key07-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey07PlugInRunnable);
             }
         }
     };
@@ -1198,86 +1056,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch08Observer", "onUEvent.event.toString()=" + event.toString());
             isKey08BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+            isKey08BottomStatus = true;
             if (isKey08BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_08", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "08";
-                Log.e("=====", "key08--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key08reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    // TODO: 2019/2/28 循环4次查询钥匙扣 done
-                    //playVoice(R.string.tts_key_communicate_err);
-                    //mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 1000);
-                    mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
-                } else {
-                    Log.e("====", "===key08=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key08=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "08" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key08-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key08-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_08", false);
+                mKeyPlugInHandler.postDelayed(mKey08PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "08" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key08-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key08-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey08PlugInRunnable);
             }
         }
     };
@@ -1286,84 +1069,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch09Observer", "onUEvent.event.toString()=" + event.toString());
             isKey09BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+            isKey09BottomStatus = true;
             if (isKey09BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_09", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "09";
-                Log.e("=====", "key09--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key09reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key09=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key09=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "09" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key09-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key09-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_09", false);
+                mKeyPlugInHandler.postDelayed(mKey09PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "09" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key09-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key09-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey09PlugInRunnable);
             }
         }
     };
@@ -1372,84 +1082,11 @@ public class TcpService extends Service {
         public void onUEvent(UEventObserver.UEvent event) {
             Log.d("mBottomSwitch10Observer", "onUEvent.event.toString()=" + event.toString());
             isKey10BottomOn = "0".equals(event.get("SWITCH_STATE"));//按下是0，弹起是1
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_ON, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
-            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+            isKey10BottomStatus = true;
             if (isKey10BottomOn) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_10", false);
-                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-                //如果店面ID 不一致，闪灯， 提示非法归还
-                //如果没有读到店面 ID， 等信息，  启动注册流程
-                String shopId = allKeysShopIdRead();
-                String savedShopId = getSavedShopID();
-                String keyId = allKeysIdRead();
-                currentKeyId = keyId;
-                currentKeyholeId = "10";
-                Log.e("=====", "key10--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                //if (false) {
-                //if (shopId.contains("ffffffffffffffffffff") || shopId.contains("fafafafafafafafafafa")) {//读到店面id
-                if (shopId.contains("ffffffffffffffffffff")) {
-                    //switchStatusCtrl(SWITCH_01_PATH, true);
-                    Log.e("====", "===========key10reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 1000);
-                } else {
-                    Log.e("====", "===key10=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                    Log.e("====", "===key10=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "10" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        Log.e("====", "===============key10-back");
-                        //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_ON, 10);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
-                    } else {
-                        //报警，非法归还
-                        Log.e("====", "===============key10-back-illegal");
-                        //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
-                        //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
-                    }
-                }
-                execCommand("echo off > /sys/class/gpio_switch/switch_ct_10", false);
+                mKeyPlugInHandler.postDelayed(mKey10PlugInRunnable, 1500);
             } else {
-                boolean isLegal = getXmlKeyOutLegal();
-                if (isLegal) {
-                    playVoice(R.string.tts_key_out);
-                    //声音提示弹出
-                    //钥匙箱钥匙孔状态变化信息上报（开机或者关机也上报一次）,钥匙箱运行状态;钥匙孔编号;钥匙孔状态;时间
-                    //钥匙孔状态：0：正常 1 充电异常 2 通信异常 3 电磁阀异常
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + getXmlBoxWorkState() + "3b" + "10" + "3b" + "00" + "3b" + getTimeHexString()));
-                    Log.e("====", "=========key10-normal-out-");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOut, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
-                    setXmlKeyOutLegal(false);
-                } else {
-                    //  提示非法
-                    Log.e("====", "=========key10-illegal-out-");
-                    playVoice(R.string.tts_key_out_illegal);
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
-                    //mLedCtrlHandler.postDelayed(playSoundKeyOutIllegal, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
-                }
-                //setXmlKeyOutLegal(false);
+                mKeyPlugInHandler.removeCallbacks(mKey10PlugInRunnable);
             }
         }
     };
@@ -1954,12 +1591,20 @@ public class TcpService extends Service {
                             case "00":
                                 Log.e("====", "=============key unreg succeed");
                                 setXmlKeyOutLegal(true);//合法弹出
-                                Log.e("====", "======注销弹出-unRegKeyhole=" + unRegKeyhole + "---unregkeyId=" + getSaveKeyId(unRegKeyhole));
-                                playVoice(String.format(getResources().getString(R.string.tts_key_unreg_succeed), unRegKeyhole));
-                                mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                                mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                                mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
-                                keyOutMotorOn(unRegKeyhole);
+                                String unRegedKeyId = getSavedKeyId(unRegKeyhole);
+                                //清空key的鉴权码，店面id
+                                boolean eraseSucceed = eraseKeyInfo(unRegedKeyId);
+                                if (eraseSucceed) {
+                                    Log.e("====", "======注销弹出-unRegKeyhole=" + unRegKeyhole + "---unregkeyId=" + getSavedKeyId(unRegKeyhole));
+                                    playVoice(String.format(getResources().getString(R.string.tts_key_unreg_succeed), unRegKeyhole));
+                                    mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                                    mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                                    mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    keyOutMotorOn(unRegKeyhole);
+                                } else {
+                                    playVoice(R.string.tts_key_erase_failed);
+                                    Log.e("====", "============tts_key_erase_failed");
+                                }
                                 break;
                             case "01":
                                 Log.e("====", "=============key unreg failed");
@@ -2021,11 +1666,13 @@ public class TcpService extends Service {
                                 //mLedCtrlHandler.postDelayed(playSoundKeyRegSucceed, 10);
                                 playVoice(R.string.tts_key_reg_succeed);
                                 Log.e("====", "====send to key--currentKeyholeId=" + currentKeyholeId + "----currentKeyId=" + currentKeyId);
-                                execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + currentKeyholeId, false);
-                                execCommand("echo " + getSavedShopID() + " > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
-                                execCommand("echo " + authCode + " > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
-                                execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
-                                execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + currentKeyholeId, false);
+                                synchronized (mKeyCommunicationLock) {
+                                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + currentKeyholeId, false);
+                                    execCommand("echo " + getSavedShopID() + " > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
+                                    execCommand("echo " + authCode + " > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
+                                    execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                                    execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + currentKeyholeId, false);
+                                }
                                 saveKeyAuthCode(authCode);
                                 /*switch (currentKeyholeId) {
                                     case "01":
@@ -2160,8 +1807,7 @@ public class TcpService extends Service {
                             //ota
                             //mLedCtrlHandler.postDelayed(playSoundBoxUpgrade, 10);
                             playVoice(R.string.tts_box_upgrade);
-                            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
-                            //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_OFF, 10);
+                            sleep(2000);
                             Intent otaIntent = new Intent("com.qualcomm.update.start_update_after");
                             otaIntent.putExtra("start", true);
                             mContext.sendBroadcast(otaIntent);
@@ -2642,10 +2288,10 @@ public class TcpService extends Service {
                 Log.e("====", "=======PC_TO_DROID_UNREG_KEY");
                 // TODO: 2019/3/3 钥匙扣注销 0x0004 done
                 unRegKeyhole = intent.getStringExtra("keynum");
-                Log.e("====", "=====UNREG_KEY-receiver-unRegKeyhole=" + unRegKeyhole + "----keyid=" + getSaveKeyId(unRegKeyhole));
+                Log.e("====", "=====UNREG_KEY-receiver-unRegKeyhole=" + unRegKeyhole + "----keyid=" + getSavedKeyId(unRegKeyhole));
                 //0：换店 1：损坏
                 //终端 ID
-                sendMessage(getAllBytes(0x0004, mHeadMsgSeqInt, tmpPhoneId, "00" + getSaveKeyId(unRegKeyhole)));
+                sendMessage(getAllBytes(0x0004, mHeadMsgSeqInt, tmpPhoneId, "00" + getSavedKeyId(unRegKeyhole)));
             }
             if ("com.erobbing.tcpsmartkey.alarm".equals(action)) {
                 Log.e("====", "==========heart alarm");
@@ -2867,8 +2513,8 @@ public class TcpService extends Service {
         String bodyString = "0c" + "00" + "999999999999";
         for (int i = 0; i < 24; i++) {
             try {
-                String keyId = getSaveKeyId(String.format("%02x", i + 1));//default "999999999999"
-                Log.e("====", "======getSaveKeyId=" + keyId);
+                String keyId = getSavedKeyId(String.format("%02x", i + 1));//default "999999999999"
+                Log.e("====", "======getSavedKeyId=" + keyId);
                 sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + String.format("%02x", i + 1) + "3b" + keyId));
                 Thread.sleep(200L);
             } catch (Exception e) {
@@ -2891,8 +2537,8 @@ public class TcpService extends Service {
         //钥匙孔状态0：正常 1 充电异常 2 通信异常 3 电磁阀异常 4 其他异常
         for (int i = 0; i < 24; i++) {
             try {
-                String keyId = getSaveKeyId(String.format("%02x", i + 1));//default "999999999999"
-                Log.e("====", "======getSaveKeyId=" + keyId);
+                String keyId = getSavedKeyId(String.format("%02x", i + 1));//default "999999999999"
+                Log.e("====", "======getSavedKeyId=" + keyId);
                 sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0a" + "00" + "3b" + String.format("%02x", i + 1) + "3b" + "00" + "3b" + getTimeHexString()));
                 Thread.sleep(200L);
             } catch (Exception e) {
@@ -2927,6 +2573,7 @@ public class TcpService extends Service {
     public int getCurrentBoxBatteryCapacity() {
         String levelString = "100";
         levelString = ShellUtils.execCommand("cat /sys/class/power_supply/battery/capacity", false, true).successMsg;
+        Log.e("====", "=============getCurrentBoxBatteryCapacity");
         return Integer.parseInt(levelString);
     }
 
@@ -2936,9 +2583,12 @@ public class TcpService extends Service {
         //B0：代表是否充满电 0：未充满 1：充满
         //B1：代表数据是否有效 0：无效 1：有效
         //00 01 10 11   11->3有效满电
-        ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
-        levelString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
-        ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+        synchronized (mKeyCommunicationLock) {
+            ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+            levelString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
+            ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+        }
+        Log.e("====", "=============getCurrentKeyBatteryFull");
         return levelString.contains("3") ? true : false;
     }
 
@@ -2964,7 +2614,7 @@ public class TcpService extends Service {
         editor.commit();
     }
 
-    public String getSaveKeyId(String keyHoleId) {
+    public String getSavedKeyId(String keyHoleId) {
         SharedPreferences sp = mContext.getSharedPreferences("config", Context.MODE_PRIVATE);
         String keyId = sp.getString("key_hole_" + keyHoleId, "999999999999");
         return keyId;
@@ -3292,19 +2942,43 @@ public class TcpService extends Service {
         return state;
     }
 
+    public boolean eraseKeyInfo(String keyHole) {
+        Log.e("====", "==============eraseKeyInfo");
+        String levelString = "00";
+        synchronized (mKeyCommunicationLock) {
+            ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+            levelString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
+            if (levelString.contains("2") || levelString.contains("3")) {
+                //通信正常
+                ShellUtils.execCommand("echo ffffffffffffffffffff > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
+                ShellUtils.execCommand("echo ffffffffffffffffffff > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
+                ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+                return true;
+            } else {
+                //通信异常
+                Log.e("====", "=======eraseKeyInfo error");
+                ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
+                return false;
+            }
+        }
+    }
+
     private String keyIdRead() {
+        Log.e("====", "=======keyIdRead");
         String oriString = execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_id", false, true).successMsg;
         Log.d(TAG, "keyIdRead=" + reGroupString(oriString));
         return reGroupString(oriString);
     }
 
     private String keyShopIdRead() {
+        Log.e("====", "=======keyShopIdRead");
         String oriString = execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/dm_id", false, true).successMsg;
         Log.d(TAG, "keyShopIdRead=" + reGroupString(oriString));
         return reGroupString(oriString);
     }
 
     private String keyBatLeveldRead() {
+        Log.e("====", "=======keyBatLeveldRead");
         String oriString = execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
         Log.d(TAG, "keyBatLeveldRead=" + reGroupString(oriString));
         return reGroupString(oriString);
@@ -3668,8 +3342,6 @@ public class TcpService extends Service {
                 case HANDLER_MSG_KEY_01_MOTOR_ON:
                     motor01StatusCtrl(true);
                     mMotorCtrlHandler.postDelayed(mMotor01OffIn10S, MOTOR_AUTO_OFF_TIME);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
                     break;
                 case HANDLER_MSG_KEY_02_MOTOR_ON:
                     motor02StatusCtrl(true);
@@ -4137,15 +3809,15 @@ public class TcpService extends Service {
 
     private final Runnable mGreenLed01fastBlinkRunnable = new Runnable() {
         public void run() {
-            fastBlinkCount--;
-            if (fastBlinkCount > 0) {
+            fastBlinkCount01--;
+            if (fastBlinkCount01 > 0) {
                 ledSeriesCtrl(LED_GREEN_01, true);
                 sleep(LED_BLINK_SLEEP_TIME);
                 ledSeriesCtrl(LED_GREEN_01, false);
                 mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
             } else {
                 mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                fastBlinkCount = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+                fastBlinkCount01 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
             }
             // TODO: 2019/3/2 快闪出仓时间最多10s，所以快闪灯最多亮10s done
         }
@@ -4153,289 +3825,921 @@ public class TcpService extends Service {
 
     private final Runnable mGreenLed02SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_02, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_02, false);
-            mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("02")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_02, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_02, false);
+                mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed02fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_02, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_02, false);
-            mLedCtrlHandler.postDelayed(mGreenLed02fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount02--;
+            if (fastBlinkCount02 > 0) {
+                ledSeriesCtrl(LED_GREEN_02, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_02, false);
+                mLedCtrlHandler.postDelayed(mGreenLed02fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                fastBlinkCount02 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed03SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_03, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_03, false);
-            mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("03")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_03, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_03, false);
+                mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed03fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_03, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_03, false);
-            mLedCtrlHandler.postDelayed(mGreenLed03fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount03--;
+            if (fastBlinkCount03 > 0) {
+                ledSeriesCtrl(LED_GREEN_03, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_03, false);
+                mLedCtrlHandler.postDelayed(mGreenLed03fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                fastBlinkCount03 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed04SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_04, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_04, false);
-            mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("04")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_04, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_04, false);
+                mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed04fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_04, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_04, false);
-            mLedCtrlHandler.postDelayed(mGreenLed04fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount04--;
+            if (fastBlinkCount04 > 0) {
+                ledSeriesCtrl(LED_GREEN_04, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_04, false);
+                mLedCtrlHandler.postDelayed(mGreenLed04fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                fastBlinkCount04 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed05SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_05, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_05, false);
-            mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("05")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_05, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_05, false);
+                mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed05fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_05, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_05, false);
-            mLedCtrlHandler.postDelayed(mGreenLed05fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount05--;
+            if (fastBlinkCount05 > 0) {
+                ledSeriesCtrl(LED_GREEN_05, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_05, false);
+                mLedCtrlHandler.postDelayed(mGreenLed05fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                fastBlinkCount05 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed06SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_06, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_06, false);
-            mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("06")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_06, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_06, false);
+                mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed06fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_06, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_06, false);
-            mLedCtrlHandler.postDelayed(mGreenLed06fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount06--;
+            if (fastBlinkCount06 > 0) {
+                ledSeriesCtrl(LED_GREEN_06, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_06, false);
+                mLedCtrlHandler.postDelayed(mGreenLed06fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                fastBlinkCount06 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed07SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_07, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_07, false);
-            mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("07")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_07, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_07, false);
+                mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed07fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_07, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_07, false);
-            mLedCtrlHandler.postDelayed(mGreenLed07fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount07--;
+            if (fastBlinkCount07 > 0) {
+                ledSeriesCtrl(LED_GREEN_07, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_07, false);
+                mLedCtrlHandler.postDelayed(mGreenLed07fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                fastBlinkCount07 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed08SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_08, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_08, false);
-            mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("08")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_08, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_08, false);
+                mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed08fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_08, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_08, false);
-            mLedCtrlHandler.postDelayed(mGreenLed08fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount08--;
+            if (fastBlinkCount08 > 0) {
+                ledSeriesCtrl(LED_GREEN_08, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_08, false);
+                mLedCtrlHandler.postDelayed(mGreenLed08fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                fastBlinkCount08 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed09SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_09, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_09, false);
-            mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("09")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_09, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_09, false);
+                mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed09fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_09, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_09, false);
-            mLedCtrlHandler.postDelayed(mGreenLed09fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount09--;
+            if (fastBlinkCount09 > 0) {
+                ledSeriesCtrl(LED_GREEN_09, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_09, false);
+                mLedCtrlHandler.postDelayed(mGreenLed09fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                fastBlinkCount09 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     private final Runnable mGreenLed10SlowBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_10, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_10, false);
-            mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            if (getCurrentKeyBatteryFull("10")) {
+                mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_ON, 10);
+            } else {
+                ledSeriesCtrl(LED_GREEN_10, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_10, false);
+                mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+            }
         }
     };
 
     private final Runnable mGreenLed10fastBlinkRunnable = new Runnable() {
         public void run() {
-            ledSeriesCtrl(LED_GREEN_10, true);
-            sleep(LED_BLINK_SLEEP_TIME);
-            ledSeriesCtrl(LED_GREEN_10, false);
-            mLedCtrlHandler.postDelayed(mGreenLed10fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            fastBlinkCount10--;
+            if (fastBlinkCount10 > 0) {
+                ledSeriesCtrl(LED_GREEN_10, true);
+                sleep(LED_BLINK_SLEEP_TIME);
+                ledSeriesCtrl(LED_GREEN_10, false);
+                mLedCtrlHandler.postDelayed(mGreenLed10fastBlinkRunnable, LED_FAST_BLINK_TIME);
+            } else {
+                mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                fastBlinkCount10 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
+            }
         }
     };
 
     ////
     private final Runnable mKey01PlugInRunnable = new Runnable() {
         public void run() {
-            execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
-            //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
-            //如果店面ID 不一致，闪灯， 提示非法归还
-            //如果没有读到店面 ID， 等信息，  启动注册流程
-            String shopId = keyShopIdRead();//allKeysShopIdRead();
-            String savedShopId = getSavedShopID();
-            String keyId = keyIdRead();//allKeysIdRead();
-            currentKeyId = keyId;
-            currentKeyholeId = "01";
-            saveKeyId("key_hole_01", keyId);
-            Log.e("=====", "key01--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-            if (shopId.contains("ffffffffffffffffffff")) {
-                //switchStatusCtrl(SWITCH_01_PATH, true);
-                Log.e("====", "===========key01reg=allKeysShopIdRead()=" + allKeysShopIdRead());
-                //钥匙扣注册
-                String proAndCity = "01000633";//getSavedProvinceAndCity();
-                String manufacturerID = "88888888";//getSavedManufacturerID();
-                String shopID = "77777777777777777777";//getSavedShopID();
-                //getSavedBoxID();
-                sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
-            } else if (shopId.contains("fafafafafafafafafafa")) {
-                //mLedCtrlHandler.postDelayed(playSoundKeycommunicateErr, 200);
-                //playVoice(R.string.tts_key_communicate_err);
-                //mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
-                //isKeyCommunicateErr = true;
-                mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
-            } else {
-                Log.e("====", "===key01=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
-                Log.e("====", "===key01=shopId=" + shopId + "-length=" + shopId.length());
-                if (shopId.contains(savedShopId)) {
-                    //mLedCtrlHandler.postDelayed(playSoundKeyBackSucceed, 10);
-                    playVoice(R.string.tts_key_back_succeed);
-                    //钥匙扣归还
-                    //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
-                    //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
-                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
-                    //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                    execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
-                    Log.e("====", "===============key01-back");
-                    //allKeysBatteryLevelWrite("02");//不在此处，在归还收到服务器信息之后
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "01";
+                saveKeyId("key_hole_01", keyId);
+                Log.e("=====", "key01--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key01reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
                     mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
                     mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
                     mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
                     mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
                     mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
                 } else {
-                    //报警，非法归还
-                    Log.e("====", "===============key01-back-illegal");
-                    //mLedCtrlHandler.postDelayed(playSoundKeyBackIllegal, 10);
-                    playVoice(R.string.tts_key_back_illegal);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
-                    // TODO: 2019/2/27  上报？
+                    Log.e("====", "===key01=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key01=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key01-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key01-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
                 }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
             }
-            execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
-            //mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
         }
     };
 
     private final Runnable mKey02PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_02", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "02";
+                saveKeyId("key_hole_02", keyId);
+                Log.e("=====", "key02--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key02reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey02BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key02=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key02=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "02" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key02-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key02-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_02", false);
+            }
         }
     };
 
     private final Runnable mKey03PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_03", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "03";
+                saveKeyId("key_hole_03", keyId);
+                Log.e("=====", "key03--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key03reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey03BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key03=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key03=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "03" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key03-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key03-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_03", false);
+            }
         }
     };
 
     private final Runnable mKey04PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_04", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "04";
+                saveKeyId("key_hole_04", keyId);
+                Log.e("=====", "key04--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key04reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey04BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key04=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key04=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "04" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key04-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key04-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_04", false);
+            }
         }
     };
 
     private final Runnable mKey05PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_05", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "05";
+                saveKeyId("key_hole_05", keyId);
+                Log.e("=====", "key05--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key05reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey05BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key05=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key05=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "05" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key05-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key05-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_05", false);
+            }
         }
     };
 
     private final Runnable mKey06PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_06", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "06";
+                saveKeyId("key_hole_06", keyId);
+                Log.e("=====", "key06--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key06reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey06BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key06=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key06=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "06" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key06-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key06-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_06", false);
+            }
         }
     };
 
     private final Runnable mKey07PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_07", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "07";
+                saveKeyId("key_hole_07", keyId);
+                Log.e("=====", "key07--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key07reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey07BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key07=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key07=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "07" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key07-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key07-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_07", false);
+            }
         }
     };
 
     private final Runnable mKey08PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_08", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "08";
+                saveKeyId("key_hole_08", keyId);
+                Log.e("=====", "key08--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key08reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey08BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key08=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key08=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "08" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key08-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key08-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_08", false);
+            }
         }
     };
 
     private final Runnable mKey09PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_09", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "09";
+                saveKeyId("key_hole_09", keyId);
+                Log.e("=====", "key09--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key09reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey09BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key09=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key09=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "09" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key09-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key09-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_09", false);
+            }
         }
     };
 
     private final Runnable mKey10PlugInRunnable = new Runnable() {
         public void run() {
-
+            synchronized (mKeyCommunicationLock) {
+                execCommand("echo on > /sys/class/gpio_switch/switch_ct_10", false);
+                //当钥匙扣插入钥匙箱时候，如果钥匙箱读到钥匙扣的ID 和 钥匙扣的店面 ID 判断一下，是否 等于 钥匙箱的店面 ID， 如果相等， 启动电磁阀， 锁住 钥匙扣，上报 0817 + 01的命令
+                //如果店面ID 不一致，闪灯， 提示非法归还
+                //如果没有读到店面 ID， 等信息，  启动注册流程
+                String shopId = keyShopIdRead();//allKeysShopIdRead();
+                String savedShopId = getSavedShopID();
+                String keyId = keyIdRead();//allKeysIdRead();
+                currentKeyId = keyId;
+                currentKeyholeId = "10";
+                saveKeyId("key_hole_10", keyId);
+                Log.e("=====", "key10--shopId-read=" + shopId + "-----keyId-read=" + keyId);
+                if (shopId.contains("ffffffffffffffffffff")) {
+                    Log.e("====", "===========key10reg=allKeysShopIdRead()=" + allKeysShopIdRead());
+                    //钥匙扣注册
+                    String proAndCity = "01000633";//getSavedProvinceAndCity();
+                    String manufacturerID = "88888888";//getSavedManufacturerID();
+                    String shopID = "77777777777777777777";//getSavedShopID();
+                    //getSavedBoxID();
+                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                    mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                    mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                } else if (shopId.contains("fafafafafafafafafafa")) {
+                    mKeyBatNullCheckHandler.postDelayed(mKey10BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                } else {
+                    Log.e("====", "===key10=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
+                    Log.e("====", "===key10=shopId=" + shopId + "-length=" + shopId.length());
+                    if (shopId.contains(savedShopId)) {
+                        playVoice(R.string.tts_key_back_succeed);
+                        //钥匙扣归还
+                        //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
+                        //sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + tmpKey01Id));
+                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "10" + "3b" + keyId));
+                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                        Log.e("====", "===============key10-back");
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else {
+                        //报警，非法归还
+                        Log.e("====", "===============key10-back-illegal");
+                        playVoice(R.string.tts_key_back_illegal);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+                        // TODO: 2019/2/27  上报？
+                    }
+                }
+                execCommand("echo off > /sys/class/gpio_switch/switch_ct_10", false);
+            }
         }
     };
 
@@ -4501,85 +4805,870 @@ public class TcpService extends Service {
 
     private final Runnable mKey01BatNull2BootRunnable = new Runnable() {
         public void run() {
-            mKeyBatNullCheckCount--;
-            if (mKeyBatNullCheckCount > 0) {
+            mKey01BatNullCheckCount--;
+            if (mKey01BatNullCheckCount > 0) {
                 // TODO: 2019/2/28 done
-                execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
-                String keyId = keyIdRead();
-                String shopId = keyShopIdRead();
-                String batLevel = keyBatLeveldRead();
-                boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
-                Log.e("====", "==========mKey01BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
-                String savedShopId = getSavedShopID();
-                saveKeyId("key_hole_01", keyId);
-                //currentKeyId = keyId;
-                //currentKeyholeId = "01";
-                if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
-                    //钥匙扣注册
-                    String proAndCity = "01000633";//getSavedProvinceAndCity();
-                    String manufacturerID = "88888888";//getSavedManufacturerID();
-                    String shopID = "77777777777777777777";//getSavedShopID();
-                    //getSavedBoxID();
-                    sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
-                    mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
-                    mKeyBatNullCheckCount = 4;
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                    mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
-                } else if (shopId.contains("fafafafafafafafafafa")) {
-                    //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
-                    mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
-                    mKeyBatNullCheckCount = 4;
-                    playVoice(R.string.tts_key_communicate_err);
-                    mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
-                    isKeyCommunicateErr = true;
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                    mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                    mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
-                } else if (keyId.contains("00ffffffffff")) {
-                    mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
-                } else {
-                    if (shopId.contains(savedShopId)) {
-                        playVoice(R.string.tts_key_back_succeed);
-                        //钥匙扣归还
-                        sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
-                        //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
-                        execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey01BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_01", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                        mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
                         mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
                         mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
                         mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
-                    } else {
-                        //报警，非法归还
-                        playVoice(R.string.tts_key_back_illegal);
-                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                        mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
+                        isKey01CommunicateErr = true;
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
                         mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
                         mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
-                        // TODO: 2019/2/28 需要上报服务器？
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "01" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
+                        mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
                     }
-                    mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
-                    mKeyBatNullCheckCount = 4;
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_01", false);
                 }
-                execCommand("echo of > /sys/class/gpio_switch/switch_ct_01", false);
             } else {
                 mKeyBatNullCheckHandler.removeCallbacks(mKey01BatNull2BootRunnable);
-                mKeyBatNullCheckCount = 4;
+                mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
                 playVoice(R.string.tts_key_communicate_err);
                 mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 1000);
-                isKeyCommunicateErr = true;
+                isKey01CommunicateErr = true;
                 mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
                 mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_OFF, 10);
                 mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
                 mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
                 mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_01_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey02BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey02BatNullCheckCount--;
+            if (mKey02BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_02", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey02BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_02", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey02BatNull2BootRunnable);
+                        mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey02BatNull2BootRunnable);
+                        mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 1000);
+                        isKey02CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey02BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "02" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey02BatNull2BootRunnable);
+                        mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_02", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey02BatNull2BootRunnable);
+                mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 1000);
+                isKey02CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey03BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey03BatNullCheckCount--;
+            if (mKey03BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_03", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey03BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_03", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey03BatNull2BootRunnable);
+                        mKey03BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey03BatNull2BootRunnable);
+                        mKey03BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 1000);
+                        isKey03CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey03BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "03" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey03BatNull2BootRunnable);
+                        mKey03BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_03", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey03BatNull2BootRunnable);
+                mKey03BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 1000);
+                isKey03CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_03_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey04BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey04BatNullCheckCount--;
+            if (mKey04BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_04", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey04BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_04", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey04BatNull2BootRunnable);
+                        mKey04BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey04BatNull2BootRunnable);
+                        mKey04BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 1000);
+                        isKey04CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey04BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "04" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey04BatNull2BootRunnable);
+                        mKey04BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_04", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey04BatNull2BootRunnable);
+                mKey04BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 1000);
+                isKey04CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_04_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey05BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey05BatNullCheckCount--;
+            if (mKey05BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_05", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey05BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_05", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey05BatNull2BootRunnable);
+                        mKey05BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey05BatNull2BootRunnable);
+                        mKey05BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 1000);
+                        isKey05CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey05BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "05" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey05BatNull2BootRunnable);
+                        mKey05BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_05", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey05BatNull2BootRunnable);
+                mKey05BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 1000);
+                isKey05CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_05_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey06BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey06BatNullCheckCount--;
+            if (mKey06BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_06", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey06BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_06", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey06BatNull2BootRunnable);
+                        mKey06BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey06BatNull2BootRunnable);
+                        mKey06BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 1000);
+                        isKey06CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey06BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "06" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey06BatNull2BootRunnable);
+                        mKey06BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_06", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey06BatNull2BootRunnable);
+                mKey06BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 1000);
+                isKey06CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_06_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey07BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey07BatNullCheckCount--;
+            if (mKey07BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_07", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey07BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_07", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey07BatNull2BootRunnable);
+                        mKey07BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey07BatNull2BootRunnable);
+                        mKey07BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 1000);
+                        isKey07CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey07BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "07" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey07BatNull2BootRunnable);
+                        mKey07BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_07", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey07BatNull2BootRunnable);
+                mKey07BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 1000);
+                isKey07CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_07_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey08BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey08BatNullCheckCount--;
+            if (mKey08BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_08", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey08BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_08", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey08BatNull2BootRunnable);
+                        mKey08BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey08BatNull2BootRunnable);
+                        mKey08BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 1000);
+                        isKey08CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey08BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "08" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey08BatNull2BootRunnable);
+                        mKey08BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_08", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey08BatNull2BootRunnable);
+                mKey08BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 1000);
+                isKey08CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_08_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey09BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey09BatNullCheckCount--;
+            if (mKey09BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_09", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey09BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_09", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey09BatNull2BootRunnable);
+                        mKey09BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey09BatNull2BootRunnable);
+                        mKey09BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 1000);
+                        isKey09CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey09BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "09" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey09BatNull2BootRunnable);
+                        mKey09BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_09", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey09BatNull2BootRunnable);
+                mKey09BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 1000);
+                isKey09CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_09_ON, 10);
+            }
+        }
+    };
+
+    private final Runnable mKey10BatNull2BootRunnable = new Runnable() {
+        public void run() {
+            mKey10BatNullCheckCount--;
+            if (mKey10BatNullCheckCount > 0) {
+                // TODO: 2019/2/28 done
+                synchronized (mKeyCommunicationLock) {
+                    execCommand("echo on > /sys/class/gpio_switch/switch_ct_10", false);
+                    String keyId = keyIdRead();
+                    String shopId = keyShopIdRead();
+                    String batLevel = keyBatLeveldRead();
+                    boolean keyDataValid = batLevel.contains("02") || batLevel.contains("03");
+                    Log.e("====", "==========mKey10BatNull2BootRunnable.keyId=" + keyId + "***shopId=" + shopId + "***batLevel=" + batLevel);
+                    String savedShopId = getSavedShopID();
+                    saveKeyId("key_hole_10", keyId);
+                    //currentKeyId = keyId;
+                    //currentKeyholeId = "01";
+                    if (shopId.contains("ffffffffffffffffffff") && keyDataValid) {
+                        //钥匙扣注册
+                        String proAndCity = "01000633";//getSavedProvinceAndCity();
+                        String manufacturerID = "88888888";//getSavedManufacturerID();
+                        String shopID = "77777777777777777777";//getSavedShopID();
+                        //getSavedBoxID();
+                        sendMessage(getAllBytes(0x0100, mHeadMsgSeqInt, tmpPhoneId, proAndCity + manufacturerID + shopID + keyId));
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey10BatNull2BootRunnable);
+                        mKey10BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                        mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                    } else if (shopId.contains("fafafafafafafafafafa")) {
+                        //mKeyBatNullCheckHandler.postDelayed(mKey01BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey10BatNull2BootRunnable);
+                        mKey10BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                        playVoice(R.string.tts_key_communicate_err);
+                        mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 1000);
+                        isKey10CommunicateErr = true;
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                        mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                        mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+                    } else if (keyId.contains("00ffffffffff")) {
+                        mKeyBatNullCheckHandler.postDelayed(mKey10BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
+                    } else {
+                        if (shopId.contains(savedShopId)) {
+                            playVoice(R.string.tts_key_back_succeed);
+                            //钥匙扣归还
+                            sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "01" + "10" + "3b" + keyId));
+                            //向钥匙扣st(电量接口)写02,钥匙扣收到之后休眠
+                            execCommand("echo 2 > /sys/bus/i2c/devices/6-005b/mcu/key_st", false);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                            mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
+                        } else {
+                            //报警，非法归还
+                            playVoice(R.string.tts_key_back_illegal);
+                            mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                            mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                            mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
+                            // TODO: 2019/2/28 需要上报服务器？
+                        }
+                        mKeyBatNullCheckHandler.removeCallbacks(mKey10BatNull2BootRunnable);
+                        mKey10BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                    }
+                    execCommand("echo of > /sys/class/gpio_switch/switch_ct_10", false);
+                }
+            } else {
+                mKeyBatNullCheckHandler.removeCallbacks(mKey10BatNull2BootRunnable);
+                mKey10BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
+                playVoice(R.string.tts_key_communicate_err);
+                mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 1000);
+                isKey10CommunicateErr = true;
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_OFF, 10);
+                mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_10_ON, 10);
             }
         }
     };

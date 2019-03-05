@@ -10,7 +10,7 @@
     <string name="tts_box_unreg_succeed">钥匙箱注销成功</string>
     <string name="tts_key_unreg_failed">钥匙扣注销失败</string>
     <string name="tts_key_unreg_succeed">钥匙扣注销成功，请取走%1$s号钥匙扣</string>
-    <string name="tts_box_upgrade">钥匙箱即将进行系统在线升级，请不要断电，等待升级完成</string>
+    <string name="tts_box_upgrade">钥匙箱即将进行系统在线升级，请不要断电</string>
     <string name="tts_key_auth_failed">钥匙扣鉴权失败</string>
     <string name="tts_key_auth_succeed">钥匙扣鉴权成功</string>
     <string name="tts_key_back_illegal">钥匙扣非法归还</string>
@@ -23,6 +23,7 @@
     <string name="tts_key_reg_succeed">钥匙扣注册成功</string>
     <string name="tts_key_reged">钥匙扣已注册</string>
     <string name="tts_notify_key_remove">请取走%1$s号钥匙扣</string>
+    <string name="tts_key_erase_failed">钥匙扣通信异常，注销擦除失败</string>
 
     <string name="tts_network_connected">服务器连接成功</string>
     <string name="tts_network_disconnected">服务器连接断开</string>
