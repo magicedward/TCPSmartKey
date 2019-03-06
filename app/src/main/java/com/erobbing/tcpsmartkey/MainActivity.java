@@ -123,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
         //reGroupString();
         //allKeysIdpoweron();
         //allKeysIdWrite();
-        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead());
-        Log.e("====", "=========convertStringToHex=" + convertHexToString("303030303030303930393230"));
+        //Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead());
+        //Log.e("====", "=========convertStringToHex=" + convertHexToString("303030303030303930393230"));
     }
 
     public String convertStringToHex(String str) {

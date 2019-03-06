@@ -277,7 +277,7 @@ public class TcpService extends Service {
     private static final String LED_GREEN_08 = "/sys/class/leds/led-g-08/brightness";
     private static final String LED_GREEN_09 = "/sys/class/leds/led-g-09/brightness";
     private static final String LED_GREEN_10 = "/sys/class/leds/led-g-10/brightness";
-    private static final long LED_SLOW_BLINK_TIME = 8000;
+    private static final long LED_SLOW_BLINK_TIME = 3000;
     private static final long LED_FAST_BLINK_TIME = 200;
     private static final long LED_BLINK_SLEEP_TIME = 100;
     private int fastBlinkCount01 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
@@ -1121,6 +1121,7 @@ public class TcpService extends Service {
             @Override
             public void callback() {
                 Log.e("====", "=========service=连接成功" + "\n");
+                mConnected = true;
                 playVoice(R.string.tts_network_connected);
                 if (getSavedAuthCode().length() == 20) {
                     sleep(1500);
@@ -1597,9 +1598,58 @@ public class TcpService extends Service {
                                 if (eraseSucceed) {
                                     Log.e("====", "======注销弹出-unRegKeyhole=" + unRegKeyhole + "---unregkeyId=" + getSavedKeyId(unRegKeyhole));
                                     playVoice(String.format(getResources().getString(R.string.tts_key_unreg_succeed), unRegKeyhole));
-                                    mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                                    mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                                    mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    switch (unRegKeyhole) {
+                                        case "01":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "02":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed02fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "03":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed03fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "04":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed04fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "05":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed05fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "06":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed06fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "07":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed07fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "08":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed08fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "09":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed09fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                        case "10":
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                                            mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                                            mLedCtrlHandler.postDelayed(mGreenLed10fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                            break;
+                                    }
                                     keyOutMotorOn(unRegKeyhole);
                                 } else {
                                     playVoice(R.string.tts_key_erase_failed);
@@ -1846,12 +1896,101 @@ public class TcpService extends Service {
                             String keyId = HexStringUtils.convertASCIIHexToString(mBodyString.substring(8, 32));
                             setXmlKeyOutLegal(true);//合法弹出
                             Log.e("====", "======合法弹出-keyHoleId=" + keyHoleId + "---keyId=" + keyId);
-                            playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), keyHoleId));
-                            mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
-                            mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
-                            mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                            //playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), keyHoleId));
                             //motor on
-                            keyOutMotorOn(keyHoleId);
+                            //keyOutMotorOn(keyHoleId);
+                            switch (keyHoleId) {
+                                case "01":
+                                    if (isKey01MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "01"));
+                                        keyOutMotorOn("01");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed01SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed01fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "02":
+                                    if (isKey02MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "02"));
+                                        keyOutMotorOn("02");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed02fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "03":
+                                    if (isKey03MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "03"));
+                                        keyOutMotorOn("03");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed03SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed03fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed03fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "04":
+                                    if (isKey04MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "04"));
+                                        keyOutMotorOn("04");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed04SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed04fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed04fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "05":
+                                    if (isKey05MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "05"));
+                                        keyOutMotorOn("05");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed05SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed05fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed05fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "06":
+                                    if (isKey06MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "06"));
+                                        keyOutMotorOn("06");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed06SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed06fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed06fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "07":
+                                    if (isKey07MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "07"));
+                                        keyOutMotorOn("07");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed07SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed07fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed07fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "08":
+                                    if (isKey08MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "08"));
+                                        keyOutMotorOn("08");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed08SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed08fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed08fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "09":
+                                    if (isKey09MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "09"));
+                                        keyOutMotorOn("09");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed09SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed09fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed09fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                                case "10":
+                                    if (isKey10MiddleOn) {
+                                        playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), "10"));
+                                        keyOutMotorOn("10");
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed10SlowBlinkRunnable);
+                                        mLedCtrlHandler.removeCallbacks(mGreenLed10fastBlinkRunnable);
+                                        mLedCtrlHandler.postDelayed(mGreenLed10fastBlinkRunnable, LED_FAST_BLINK_TIME);
+                                    }
+                                    break;
+                            }
                             /*switch (keyHoleId) {
                                 case "01":
                                     mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
@@ -2188,6 +2327,7 @@ public class TcpService extends Service {
         filter.addAction("com.erobbing.action.PC_TO_DROID_UNREG_BOX");
         filter.addAction("com.erobbing.action.PC_TO_DROID_UNREG_KEY");
         filter.addAction("com.erobbing.tcpsmartkey.alarm");
+        filter.addAction("com.erobbing.action.EXIT_SMARTKEY");
         filter.addAction("com.erobbing.action.ETHERNET_CHANGE");//yinqi add 20190220
         registerReceiver(mPC2DroidReceiver, filter);
     }
@@ -2276,13 +2416,19 @@ public class TcpService extends Service {
                 //01 99 99 99 99 98
                 //7E 0100 0018 019999999998 0018 0100 0633 88888888 77777777777777777777 019999999998 35 7E
                 //sendMessage(getAllBytes(0x0100, 0x0018, tmpPhoneId, HexStringUtils.intToHexStringProvinceAndCity(provinceId) + HexStringUtils.intToHexStringProvinceAndCity(cityId) + mBodyManufacturerID + mBodyShopID + tmpPhoneId));
-                sendMessage(getAllBytes(0x0100, 0x0001, tmpPhoneId, "0100" + "0633" + "88888888" + "77777777777777777777" + tmpPhoneId));
+                if (mConnected) {
+                    sendMessage(getAllBytes(0x0100, 0x0001, tmpPhoneId, "0100" + "0633" + "88888888" + "77777777777777777777" + tmpPhoneId));
+                } else {
+                    connect(IP, PORT);
+                    sleep(2000);
+                    sendMessage(getAllBytes(0x0100, 0x0001, tmpPhoneId, "0100" + "0633" + "88888888" + "77777777777777777777" + tmpPhoneId));
+                }
             }
             if ("com.erobbing.action.PC_TO_DROID_UNREG_BOX".equals(action)) {
                 Log.e("====", "=======PC_TO_DROID_UNREG_BOX");
                 //0x0003;
                 //body 00 shop change,01 demaged
-                sendMessage(getAllBytes(0x0003, mHeadMsgSeqInt, tmpPhoneId, "00"));
+                sendMessage(getAllBytes(0x0003, mHeadMsgSeqInt, tmpPhoneId, "00" + tmpPhoneId));
             }
             if ("com.erobbing.action.PC_TO_DROID_UNREG_KEY".equals(action)) {
                 Log.e("====", "=======PC_TO_DROID_UNREG_KEY");
@@ -2292,6 +2438,12 @@ public class TcpService extends Service {
                 //0：换店 1：损坏
                 //终端 ID
                 sendMessage(getAllBytes(0x0004, mHeadMsgSeqInt, tmpPhoneId, "00" + getSavedKeyId(unRegKeyhole)));
+            }
+            if ("com.erobbing.action.EXIT_SMARTKEY".equals(action)) {
+                Log.e("====", "==============EXIT_SMARTKEY");
+                //stopSelf();
+                Intent stopIntent = new Intent(mContext, TcpService.class);
+                stopService(stopIntent);
             }
             if ("com.erobbing.tcpsmartkey.alarm".equals(action)) {
                 Log.e("====", "==========heart alarm");
