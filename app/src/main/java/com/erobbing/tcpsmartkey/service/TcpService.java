@@ -557,6 +557,7 @@ public class TcpService extends Service {
     private boolean isKey10CommunicateErr = false;
     private boolean mEthernetConnected = false;
     private final Object mKeyCommunicationLock = new Object();
+    private boolean isOTAUpgradeBegin = false;
 
     private final UEventObserver mMiddleSwitch01Observer = new UEventObserver() {
         @Override
@@ -1113,7 +1114,9 @@ public class TcpService extends Service {
             public void callback(IOException e) {
                 Log.e("====", "=========service=断开连接" + "\n");
                 mConnected = false;
-                playVoice(R.string.tts_network_disconnected);
+                if (!isOTAUpgradeBegin) {
+                    playVoice(R.string.tts_network_disconnected);
+                }
                 //mLedCtrlHandler.removeCallbacks(mGreenLed01fastBlinkRunnable);
             }
         });
@@ -2328,6 +2331,7 @@ public class TcpService extends Service {
         filter.addAction("com.erobbing.action.PC_TO_DROID_UNREG_KEY");
         filter.addAction("com.erobbing.tcpsmartkey.alarm");
         filter.addAction("com.erobbing.action.EXIT_SMARTKEY");
+        filter.addAction("com.erobbing.action.SMARTKEY_OTA_TEST");
         filter.addAction("com.erobbing.action.ETHERNET_CHANGE");//yinqi add 20190220
         registerReceiver(mPC2DroidReceiver, filter);
     }
@@ -2442,8 +2446,16 @@ public class TcpService extends Service {
             if ("com.erobbing.action.EXIT_SMARTKEY".equals(action)) {
                 Log.e("====", "==============EXIT_SMARTKEY");
                 //stopSelf();
-                Intent stopIntent = new Intent(mContext, TcpService.class);
-                stopService(stopIntent);
+                //Intent stopIntent = new Intent(mContext, TcpService.class);
+                //stopService(stopIntent);
+                isOTAUpgradeBegin = true;
+            }
+            if ("com.erobbing.action.SMARTKEY_OTA_TEST".equals(action)) {
+                playVoice(R.string.tts_box_upgrade);
+                sleep(2000);
+                Intent otaIntent = new Intent("com.qualcomm.update.start_update_after");
+                otaIntent.putExtra("start", true);
+                mContext.sendBroadcast(otaIntent);
             }
             if ("com.erobbing.tcpsmartkey.alarm".equals(action)) {
                 Log.e("====", "==========heart alarm");
