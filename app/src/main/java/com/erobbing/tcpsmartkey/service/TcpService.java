@@ -291,7 +291,7 @@ public class TcpService extends Service {
     private int fastBlinkCount09 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
     private int fastBlinkCount10 = (int) MOTOR_AUTO_OFF_TIME / (int) LED_FAST_BLINK_TIME;
 
-    private static final long KEY_BAT_NULL_CHECK_TIME = 3000;
+    private static final long KEY_BAT_NULL_CHECK_TIME = 6000;
     private static final int KEY_BAT_NULL_CHECK_COUNT = 3;
     private int mKey01BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
     private int mKey02BatNullCheckCount = KEY_BAT_NULL_CHECK_COUNT;
@@ -1593,11 +1593,11 @@ public class TcpService extends Service {
                         //扣注销
                         switch (mBodyString.substring(8, 10)) {
                             case "00":
-                                Log.e("====", "=============key unreg succeed");
                                 setXmlKeyOutLegal(true);//合法弹出
                                 String unRegedKeyId = getSavedKeyId(unRegKeyhole);
+                                Log.e("====", "=============key unreg succeed---unRegKeyhole=" + unRegKeyhole + "----unRegedKeyId=" + unRegedKeyId);
                                 //清空key的鉴权码，店面id
-                                boolean eraseSucceed = eraseKeyInfo(unRegedKeyId);
+                                boolean eraseSucceed = eraseKeyInfo(unRegKeyhole);
                                 if (eraseSucceed) {
                                     Log.e("====", "======注销弹出-unRegKeyhole=" + unRegKeyhole + "---unregkeyId=" + getSavedKeyId(unRegKeyhole));
                                     playVoice(String.format(getResources().getString(R.string.tts_key_unreg_succeed), unRegKeyhole));
@@ -3112,6 +3112,8 @@ public class TcpService extends Service {
         synchronized (mKeyCommunicationLock) {
             ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
             levelString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
+            String dm = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/dm_id", false, true).successMsg;
+            Log.e("====", "========levelString=" + levelString + "------keyHole=" + keyHole + "----dm=" + dm);
             if (levelString.contains("2") || levelString.contains("3")) {
                 //通信正常
                 ShellUtils.execCommand("echo ffffffffffffffffffff > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
