@@ -531,6 +531,8 @@ public class TcpService extends Service {
     private static final int HANDLER_MSG_LED_GREEN_10_ON = 122;
     private static final int HANDLER_MSG_LED_GREEN_10_OFF = 123;
 
+    private static final int HANDLER_MSG_TCP_DISCONNECT = 124;
+
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
 
@@ -555,6 +557,17 @@ public class TcpService extends Service {
     private boolean isKey08CommunicateErr = false;
     private boolean isKey09CommunicateErr = false;
     private boolean isKey10CommunicateErr = false;
+
+    private boolean isKey01Illegal_back = false;
+    private boolean isKey02Illegal_back = false;
+    private boolean isKey03Illegal_back = false;
+    private boolean isKey04Illegal_back = false;
+    private boolean isKey05Illegal_back = false;
+    private boolean isKey06Illegal_back = false;
+    private boolean isKey07Illegal_back = false;
+    private boolean isKey08Illegal_back = false;
+    private boolean isKey09Illegal_back = false;
+    private boolean isKey10Illegal_back = false;
     private boolean mEthernetConnected = false;
     private final Object mKeyCommunicationLock = new Object();
     private boolean isOTAUpgradeBegin = false;
@@ -585,13 +598,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key01-illegal-out-");
-                        if (!isKey01CommunicateErr) {
+                        if (!isKey01CommunicateErr && !isKey01Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey01CommunicateErr = false;
+                    isKey01Illegal_back = false;
                     clearSavedKeyId("key_hole_01");
                 }
                 isKey01BottomStatus = false;
@@ -626,13 +640,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key02-illegal-out-");
-                        if (!isKey02CommunicateErr) {
+                        if (!isKey02CommunicateErr && !isKey02Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey02CommunicateErr = false;
+                    isKey02Illegal_back = false;
                     clearSavedKeyId("key_hole_02");
                 }
                 isKey02BottomStatus = false;
@@ -666,13 +681,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key03-illegal-out-");
-                        if (!isKey03CommunicateErr) {
+                        if (!isKey03CommunicateErr && !isKey03Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey03CommunicateErr = false;
+                    isKey03Illegal_back = false;
                     clearSavedKeyId("key_hole_03");
                 }
                 isKey03BottomStatus = false;
@@ -706,13 +722,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key04-illegal-out-");
-                        if (!isKey04CommunicateErr) {
+                        if (!isKey04CommunicateErr && !isKey04Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey04CommunicateErr = false;
+                    isKey04Illegal_back = false;
                     clearSavedKeyId("key_hole_04");
                 }
                 isKey04BottomStatus = false;
@@ -746,13 +763,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key05-illegal-out-");
-                        if (!isKey05CommunicateErr) {
+                        if (!isKey05CommunicateErr && !isKey05Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey05CommunicateErr = false;
+                    isKey05Illegal_back = false;
                     clearSavedKeyId("key_hole_05");
                 }
                 isKey05BottomStatus = false;
@@ -786,13 +804,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key06-illegal-out-");
-                        if (!isKey06CommunicateErr) {
+                        if (!isKey06CommunicateErr && !isKey06Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey06CommunicateErr = false;
+                    isKey06Illegal_back = false;
                     clearSavedKeyId("key_hole_06");
                 }
                 isKey06BottomStatus = false;
@@ -826,13 +845,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key07-illegal-out-");
-                        if (!isKey07CommunicateErr) {
+                        if (!isKey07CommunicateErr && !isKey07Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey07CommunicateErr = false;
+                    isKey07Illegal_back = false;
                     clearSavedKeyId("key_hole_07");
                 }
                 isKey07BottomStatus = false;
@@ -866,13 +886,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key08-illegal-out-");
-                        if (!isKey08CommunicateErr) {
+                        if (!isKey08CommunicateErr && !isKey08Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey08CommunicateErr = false;
+                    isKey08Illegal_back = false;
                     clearSavedKeyId("key_hole_08");
                 }
                 isKey08BottomStatus = false;
@@ -906,13 +927,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key09-illegal-out-");
-                        if (!isKey09CommunicateErr) {
+                        if (!isKey09CommunicateErr && !isKey09Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey09CommunicateErr = false;
+                    isKey09Illegal_back = false;
                     clearSavedKeyId("key_hole_09");
                 }
                 isKey09BottomStatus = false;
@@ -946,13 +968,14 @@ public class TcpService extends Service {
                     } else {
                         //  提示非法
                         Log.e("====", "=========key10-illegal-out-");
-                        if (!isKey10CommunicateErr) {
+                        if (!isKey10CommunicateErr && !isKey10Illegal_back) {
                             playVoice(R.string.tts_key_out_illegal);
                         }
                         sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "05" + getTimeHexString()));
                         // TODO: 2019/2/28 上报服务器 done
                     }
                     isKey10CommunicateErr = false;
+                    isKey10Illegal_back = false;
                     clearSavedKeyId("key_hole_10");
                 }
                 isKey10BottomStatus = false;
@@ -1568,8 +1591,8 @@ public class TcpService extends Service {
                                 playVoice(R.string.tts_box_unreg_succeed);
                                 //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_01_ON, 10);
                                 //mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_SERIES_02_OFF, 10);
-                                //send
-                                // TODO: 2019/2/26
+                                mNetworkStatusHandler.sendEmptyMessageDelayed(HANDLER_MSG_TCP_DISCONNECT, 2000);
+                                // TODO: 2019/2/26 done
                                 break;
                             case "01":
                                 Log.e("====", "=============unreg failed");
@@ -3113,11 +3136,14 @@ public class TcpService extends Service {
             ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
             levelString = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg;
             String dm = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/dm_id", false, true).successMsg;
+            String se_code = ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/se_code", false, true).successMsg;
             Log.e("====", "========levelString=" + levelString + "------keyHole=" + keyHole + "----dm=" + dm);
             if (levelString.contains("2") || levelString.contains("3")) {
                 //通信正常
                 ShellUtils.execCommand("echo ffffffffffffffffffff > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
                 ShellUtils.execCommand("echo ffffffffffffffffffff > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
+                Log.e("====", "======erase done! ----dm=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/dm_id", false, true).successMsg
+                        + "----se_code=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/se_code", false, true).successMsg);
                 ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_" + keyHole, false);
                 return true;
             } else {
@@ -3765,7 +3791,9 @@ public class TcpService extends Service {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-
+                case HANDLER_MSG_TCP_DISCONNECT:
+                    disconnect();
+                    break;
             }
         }
     }
@@ -4318,6 +4346,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key01-back-illegal");
+                        isKey01Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
@@ -4382,6 +4411,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key02-back-illegal");
+                        isKey02Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
@@ -4446,6 +4476,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key03-back-illegal");
+                        isKey03Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
@@ -4510,6 +4541,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key04-back-illegal");
+                        isKey04Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
@@ -4574,6 +4606,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key05-back-illegal");
+                        isKey05Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
@@ -4638,6 +4671,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key06-back-illegal");
+                        isKey06Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
@@ -4702,6 +4736,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key07-back-illegal");
+                        isKey07Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
@@ -4766,6 +4801,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key08-back-illegal");
+                        isKey08Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
@@ -4830,6 +4866,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key09-back-illegal");
+                        isKey09Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
@@ -4894,6 +4931,7 @@ public class TcpService extends Service {
                     } else {
                         //报警，非法归还
                         Log.e("====", "===============key10-back-illegal");
+                        isKey10Illegal_back = true;
                         playVoice(R.string.tts_key_back_illegal);
                         mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);
@@ -5027,6 +5065,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed01SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey01Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_01_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_01_OFF, 10);
@@ -5114,6 +5153,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey02Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_02_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_02_OFF, 10);
@@ -5201,6 +5241,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed03SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey03Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_03_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_03_OFF, 10);
@@ -5288,6 +5329,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed04SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey04Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_04_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_04_OFF, 10);
@@ -5375,6 +5417,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed05SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey05Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_05_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_05_OFF, 10);
@@ -5462,6 +5505,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed06SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey06Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_06_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_06_OFF, 10);
@@ -5549,6 +5593,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed07SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey07Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_07_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_07_OFF, 10);
@@ -5636,6 +5681,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed08SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey08Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_08_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_08_OFF, 10);
@@ -5723,6 +5769,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed09SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey09Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_09_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_09_OFF, 10);
@@ -5810,6 +5857,7 @@ public class TcpService extends Service {
                             mLedCtrlHandler.postDelayed(mGreenLed10SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                         } else {
                             //报警，非法归还
+                            isKey10Illegal_back = true;
                             playVoice(R.string.tts_key_back_illegal);
                             mMotorCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_KEY_10_MOTOR_ON, 100);
                             mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_GREEN_10_OFF, 10);

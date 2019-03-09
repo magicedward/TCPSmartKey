@@ -117,7 +117,7 @@ public class MyLocalConfig extends LocalConfigServer {
 
                     SharedPreferences sp = mService.getSharedPreferences("config", Context.MODE_PRIVATE);
                     SharedPreferences.Editor ed = sp.edit();
-                    ed.clear();
+                    //ed.clear();
                     ed.putString("shop_id", config.getShopID());
                     ed.putString("box_id", config.getBoxID());
                     ed.putString("key_id", config.getKeyID());

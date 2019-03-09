@@ -13,7 +13,7 @@
     <string name="tts_box_upgrade">钥匙箱即将进行系统在线升级，请不要断电</string>
     <string name="tts_key_auth_failed">钥匙扣鉴权失败</string>
     <string name="tts_key_auth_succeed">钥匙扣鉴权成功</string>
-    <string name="tts_key_back_illegal">钥匙扣非法归还</string>
+    <string name="tts_key_back_illegal">钥匙扣非法归还，请取走钥匙扣</string>
     <string name="tts_key_back_succeed">钥匙扣归还成功</string>
     <string name="tts_key_communicate_err">通信异常，请拔出钥匙扣重试</string>
     <string name="tts_key_insert">钥匙扣插入</string>
