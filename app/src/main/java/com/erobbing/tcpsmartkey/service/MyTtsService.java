@@ -64,7 +64,7 @@ public class MyTtsService extends Service implements TextToSpeech.OnInitListener
         @Override
         public void run() {
             //if (GlobalConfig.SPEAK) {
-            textToSpeech.speak(mText, TextToSpeech.QUEUE_FLUSH, null);
+            textToSpeech.speak(mText, TextToSpeech.QUEUE_ADD, null);
             //}
         }
     };
