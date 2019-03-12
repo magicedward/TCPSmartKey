@@ -20,6 +20,11 @@ public class MyTtsService extends Service implements TextToSpeech.OnInitListener
     private static String TAG = "MyTtsService";
     private TextToSpeech textToSpeech;
     private Handler mHandler = new Handler();
+    private long mInterval = 3000;
+    private int mCount = 3;
+    private String mIntervalText = "";
+    private Context mContext;
+    private final Object mPlayLock = new Object();
 
     public MyTtsService() {
     }
@@ -33,6 +38,7 @@ public class MyTtsService extends Service implements TextToSpeech.OnInitListener
     @Override
     public void onCreate() {
         super.onCreate();
+        mContext = this;
         textToSpeech = new TextToSpeech(this, this, "com.iflytek.tts"); // 参数Context,TextToSpeech.OnInitListener
     }
 
@@ -63,7 +69,7 @@ public class MyTtsService extends Service implements TextToSpeech.OnInitListener
     private Runnable playTextRunnable = new Runnable() {
         @Override
         public void run() {
-            //if (GlobalConfig.SPEAK) {
+            //synchronized (mPlayLock) {
             textToSpeech.speak(mText, TextToSpeech.QUEUE_ADD, null);
             //}
         }
@@ -98,5 +104,53 @@ public class MyTtsService extends Service implements TextToSpeech.OnInitListener
         textToSpeech.stop(); // 不管是否正在朗读TTS都被打断
         textToSpeech.shutdown(); // 关闭，释放资源
         super.onDestroy();
+    }
+
+    private Runnable playTextIntervalRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mCount--;
+            synchronized (mPlayLock) {
+                if (mCount > 0) {
+                    //textToSpeech.speak(mText, TextToSpeech.QUEUE_ADD, null);
+                    startWithPlay(mContext, mIntervalText);
+                    mHandler.postDelayed(playTextIntervalRunnable, mInterval);
+                } else {
+                    mHandler.removeCallbacks(playTextIntervalRunnable);
+                }
+            }
+        }
+    };
+
+    public static void playTextInterval(final Context context, final long interval, final int count, final String text) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < count; i++) {
+                    startWithPlay(context, text);
+                    try {
+                        Thread.sleep(interval);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    public static void playTextInterval(final Context context, final long interval, final int count, final int textId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < count; i++) {
+                    startWithPlay(context, textId);
+                    try {
+                        Thread.sleep(interval);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 }

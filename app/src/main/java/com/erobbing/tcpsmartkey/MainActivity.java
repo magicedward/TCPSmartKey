@@ -19,11 +19,11 @@ import android.widget.TextView;
 
 import com.erobbing.smartkey.aidl.IMotorControl;
 import com.erobbing.tcpsmartkey.common.tcpclient.TcpClient;
+import com.erobbing.tcpsmartkey.service.MyTtsService;
 import com.erobbing.tcpsmartkey.service.codec.MsgEncoder;
 import com.erobbing.tcpsmartkey.util.BCD8421Operater;
 import com.erobbing.tcpsmartkey.util.BitOperator;
 import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
-import com.erobbing.tcpsmartkey.util.ShellUtils;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -220,37 +220,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear1(View view) {
-        /*textView_send.setText("");
-        String msg = "010000180199999999980018010006338888888877777777777777777777019999999598";
-        int check = mBitOperator.getCheckSum4JT808(
-                mBCD8421Operater.string2Bcd(msg), 0, (msg.length() / 2));
-        String checkSum = String.format("%02x", check);
-        Log.e("====", "===========mainactivity.checkSum=" + checkSum);*/
-        //motor01StatusCtrl(true);
-        //ledSeriesCtrl(LED_SERIES_01, true);
-        /*if (serviceConnected) {
-            try {
-                iMotorControl.setMotorStatus(false);
-                //iMotorControl.getMotorStatus();
-                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
-        //allKeysIdpoweron();
-        //allKeysIdWrite();
-        //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", true);
-        //ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
-        //ShellUtils.execCommand("echo 77777777777777777777 > /sys/bus/i2c/devices/6-005b/mcu/dm_id", false);
-        //ShellUtils.execCommand("echo 4266496677454c4a566c > /sys/bus/i2c/devices/6-005b/mcu/se_code", false);
-        //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true));
-        Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
-        //key_st=CommandResult{result=0, successMsg='144', errorMsg=''}
-        //ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true);
-        //ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
-        //switchStatusCtrl(SWITCH_01_PATH, true);
-        //allKeysAuthCodeWrite("4266496677454c4a566c");
-        //switchStatusCtrl(SWITCH_01_PATH, false);
+        MyTtsService.playTextInterval(this, 10000, 3, "展讯发布的版本和比较大的文件会通过下面的FTP发布");
+        //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
     }
 
     private void sleep(long time) {
@@ -263,26 +234,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void clear2(View view) {
         textView_receive.setText("");
-        //motor01StatusCtrl(false);
-        //ledSeriesCtrl(LED_SERIES_01, false);
-        /*if (serviceConnected) {
-            try {
-                iMotorControl.setMotorStatus(true);
-                //iMotorControl.getMotorStatus();
-                Log.e("====", "=========iMotorControl.getMotorStatus()=" + iMotorControl.getMotorStatus());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
-        //clearAuthCode();
-        //ledSeriesCtrl("/sys/class/leds/led-ct-01/brightness", false);
-        ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+        /*ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
         Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg);
         //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
         //key_st=CommandResult{result=0, successMsg='144', errorMsg=''}
         //ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true);
         ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
-        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());
+        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());*/
+        MyTtsService.playTextInterval(this, 10000, 3, "进程独自占用的物理内存");
     }
 
     public void motor01StatusCtrl(boolean on) {
