@@ -11,10 +11,15 @@
     <string name="tts_key_unreg_failed">钥匙扣注销失败</string>
     <string name="tts_key_unreg_succeed">钥匙扣注销成功，请取走%1$s号钥匙扣</string>
     <string name="tts_box_upgrade">钥匙箱即将进行系统在线升级，请不要断电</string>
+
+    <string name="tts_box_battery_low">箱体备用电量不足</string>
+    <string name="tts_box_keyhole_damaged">%1$s号仓道钥匙扣损坏，请更换</string>
+    <string name="tts_box_damaged">箱体损坏，请保修</string>
+
     <string name="tts_key_auth_failed">钥匙扣鉴权失败</string>
     <string name="tts_key_auth_succeed">钥匙扣鉴权成功</string>
-    <string name="tts_key_back_illegal">钥匙扣非法归还，请取走钥匙扣</string>
-    <string name="tts_key_back_succeed">钥匙扣归还成功</string>
+    <string name="tts_key_back_illegal">箱钥不匹配，请取走钥匙扣</string><!-- 箱钥不匹配 -->
+    <string name="tts_key_back_succeed">归还成功</string>
     <string name="tts_key_communicate_err">通信异常，请拔出钥匙扣重试</string>
     <string name="tts_key_insert">钥匙扣插入</string>
     <string name="tts_key_out">钥匙扣弹出</string>
@@ -22,9 +27,18 @@
     <string name="tts_key_reg_failed">钥匙扣注册失败</string>
     <string name="tts_key_reg_succeed">钥匙扣注册成功</string>
     <string name="tts_key_reged">钥匙扣已注册</string>
-    <string name="tts_notify_key_remove">请取走%1$s号钥匙扣</string>
+    <string name="tts_notify_key_remove">请取走%1$s号钥匙扣</string><!-- 请取钥匙 -->
     <string name="tts_key_erase_failed">钥匙扣通信异常，注销擦除失败</string>
+
+    <string name="tts_key_force_drag_forbidden">严禁强拉</string>
 
     <string name="tts_network_connected">服务器连接成功</string>
     <string name="tts_network_disconnected">服务器连接断开</string>
+
+    <string name="screen_text_keyhole_damaged">%1$s号仓道损坏，错误码：000</string>
+    <string name="screen_text_key_damaged">%1$s号仓道钥匙扣损坏，请更换</string>
+    <string name="screen_text_notify_key_remove">请取钥匙</string>
+    <string name="screen_text_key_back_succeed">归还成功</string>
+    <string name="screen_text_box_key_match_err">箱钥不匹配，请放至x箱</string>
+    <string name="screen_text_box_damaged">箱体%1$s损坏，错误码：111</string>
 </resources>
