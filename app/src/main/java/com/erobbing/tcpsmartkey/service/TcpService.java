@@ -607,6 +607,8 @@ public class TcpService extends Service {
                     isKey01CommunicateErr = false;
                     isKey01Illegal_back = false;
                     clearSavedKeyId("key_hole_01");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "01" + "3b" + "999999999999"));
                 }
                 isKey01BottomStatus = false;
             }
@@ -649,6 +651,8 @@ public class TcpService extends Service {
                     isKey02CommunicateErr = false;
                     isKey02Illegal_back = false;
                     clearSavedKeyId("key_hole_02");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "02" + "3b" + "999999999999"));
                 }
                 isKey02BottomStatus = false;
             }
@@ -690,6 +694,8 @@ public class TcpService extends Service {
                     isKey03CommunicateErr = false;
                     isKey03Illegal_back = false;
                     clearSavedKeyId("key_hole_03");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "03" + "3b" + "999999999999"));
                 }
                 isKey03BottomStatus = false;
             }
@@ -731,6 +737,8 @@ public class TcpService extends Service {
                     isKey04CommunicateErr = false;
                     isKey04Illegal_back = false;
                     clearSavedKeyId("key_hole_04");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "04" + "3b" + "999999999999"));
                 }
                 isKey04BottomStatus = false;
             }
@@ -772,6 +780,8 @@ public class TcpService extends Service {
                     isKey05CommunicateErr = false;
                     isKey05Illegal_back = false;
                     clearSavedKeyId("key_hole_05");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "05" + "3b" + "999999999999"));
                 }
                 isKey05BottomStatus = false;
             }
@@ -813,6 +823,8 @@ public class TcpService extends Service {
                     isKey06CommunicateErr = false;
                     isKey06Illegal_back = false;
                     clearSavedKeyId("key_hole_06");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "06" + "3b" + "999999999999"));
                 }
                 isKey06BottomStatus = false;
             }
@@ -854,6 +866,8 @@ public class TcpService extends Service {
                     isKey07CommunicateErr = false;
                     isKey07Illegal_back = false;
                     clearSavedKeyId("key_hole_07");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "07" + "3b" + "999999999999"));
                 }
                 isKey07BottomStatus = false;
             }
@@ -895,6 +909,8 @@ public class TcpService extends Service {
                     isKey08CommunicateErr = false;
                     isKey08Illegal_back = false;
                     clearSavedKeyId("key_hole_08");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "08" + "3b" + "999999999999"));
                 }
                 isKey08BottomStatus = false;
             }
@@ -936,6 +952,8 @@ public class TcpService extends Service {
                     isKey09CommunicateErr = false;
                     isKey09Illegal_back = false;
                     clearSavedKeyId("key_hole_09");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "09" + "3b" + "999999999999"));
                 }
                 isKey09BottomStatus = false;
             }
@@ -977,6 +995,8 @@ public class TcpService extends Service {
                     isKey10CommunicateErr = false;
                     isKey10Illegal_back = false;
                     clearSavedKeyId("key_hole_10");
+                    sleep(200);
+                    sendMessage(getAllBytes(0x0817, mHeadMsgSeqInt, tmpPhoneId, "0c" + "10" + "3b" + "999999999999"));
                 }
                 isKey10BottomStatus = false;
             }
