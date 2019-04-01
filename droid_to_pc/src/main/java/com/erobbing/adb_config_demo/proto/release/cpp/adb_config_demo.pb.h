@@ -312,6 +312,28 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::int32 keyno() const;
   void set_keyno(::google::protobuf::int32 value);
 
+  // optional string wifiName = 17;
+  void clear_wifiname();
+  static const int kWifiNameFieldNumber = 17;
+  const ::std::string& wifiname() const;
+  void set_wifiname(const ::std::string& value);
+  void set_wifiname(const char* value);
+  void set_wifiname(const char* value, size_t size);
+  ::std::string* mutable_wifiname();
+  ::std::string* release_wifiname();
+  void set_allocated_wifiname(::std::string* wifiname);
+
+  // optional string wifiPass = 18;
+  void clear_wifipass();
+  static const int kWifiPassFieldNumber = 18;
+  const ::std::string& wifipass() const;
+  void set_wifipass(const ::std::string& value);
+  void set_wifipass(const char* value);
+  void set_wifipass(const char* value, size_t size);
+  ::std::string* mutable_wifipass();
+  ::std::string* release_wifipass();
+  void set_allocated_wifipass(::std::string* wifipass);
+
   // @@protoc_insertion_point(class_scope:com.erobbing.adb_config_demo.Config)
  private:
 
@@ -329,6 +351,8 @@ class Config : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::internal::ArenaStringPtr dns1_;
   ::google::protobuf::internal::ArenaStringPtr dns2_;
   ::google::protobuf::internal::ArenaStringPtr gateway_;
+  ::google::protobuf::internal::ArenaStringPtr wifiname_;
+  ::google::protobuf::internal::ArenaStringPtr wifipass_;
   ::google::protobuf::int32 errorcode_;
   bool boxregisted_;
   bool ipdhcp_;
@@ -919,6 +943,94 @@ inline void Config::set_keyno(::google::protobuf::int32 value) {
   
   keyno_ = value;
   // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyno)
+}
+
+// optional string wifiName = 17;
+inline void Config::clear_wifiname() {
+  wifiname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Config::wifiname() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.wifiName)
+  return wifiname_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Config::set_wifiname(const ::std::string& value) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.wifiName)
+}
+inline void Config::set_wifiname(const char* value) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.wifiName)
+}
+inline void Config::set_wifiname(const char* value, size_t size) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.wifiName)
+}
+inline ::std::string* Config::mutable_wifiname() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.wifiName)
+  return wifiname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Config::release_wifiname() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.wifiName)
+  
+  return wifiname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Config::set_allocated_wifiname(::std::string* wifiname) {
+  if (wifiname != NULL) {
+    
+  } else {
+    
+  }
+  wifiname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifiname);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.wifiName)
+}
+
+// optional string wifiPass = 18;
+inline void Config::clear_wifipass() {
+  wifipass_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Config::wifipass() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.wifiPass)
+  return wifipass_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Config::set_wifipass(const ::std::string& value) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+inline void Config::set_wifipass(const char* value) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+inline void Config::set_wifipass(const char* value, size_t size) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+inline ::std::string* Config::mutable_wifipass() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.wifiPass)
+  return wifipass_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Config::release_wifipass() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.wifiPass)
+  
+  return wifipass_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Config::set_allocated_wifipass(::std::string* wifipass) {
+  if (wifipass != NULL) {
+    
+  } else {
+    
+  }
+  wifipass_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifipass);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.wifiPass)
 }
 
 inline const Config* Config::internal_default_instance() {

@@ -48,4 +48,6 @@ message Config {
     bool ipDhcp = 14;
     repeated bool keyStatus = 15; // [0..9] true: 钥匙已注册，false: 钥匙未注册
     int32 keyno = 16; // 要操作的钥匙扣号 [1..10]
+    string wifiName = 17;
+    string wifiPass = 18;
 };

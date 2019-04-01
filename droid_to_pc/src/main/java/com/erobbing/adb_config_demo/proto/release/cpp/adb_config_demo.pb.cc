@@ -40,7 +40,7 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
       "adb_config_demo.proto");
   GOOGLE_CHECK(file != NULL);
   Config_descriptor_ = file->message_type(0);
-  static const int Config_offsets_[16] = {
+  static const int Config_offsets_[18] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, errorcode_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, boxid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keyid_),
@@ -57,6 +57,8 @@ void protobuf_AssignDesc_adb_5fconfig_5fdemo_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, ipdhcp_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keystatus_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, keyno_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, wifiname_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Config, wifipass_),
   };
   Config_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -113,19 +115,20 @@ void protobuf_AddDesc_adb_5fconfig_5fdemo_2eproto_impl() {
   protobuf_InitDefaults_adb_5fconfig_5fdemo_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025adb_config_demo.proto\022\034com.erobbing.ad"
-    "b_config_demo\"\225\002\n\006Config\022\021\n\terrorCode\030\001 "
+    "b_config_demo\"\271\002\n\006Config\022\021\n\terrorCode\030\001 "
     "\001(\005\022\r\n\005boxID\030\002 \001(\t\022\r\n\005keyID\030\003 \001(\t\022\016\n\006sho"
     "pID\030\004 \001(\t\022\023\n\013boxRegisted\030\005 \001(\010\022\022\n\nprovin"
     "ceID\030\006 \001(\t\022\016\n\006cityID\030\007 \001(\t\022\026\n\016manufactur"
     "erID\030\010 \001(\t\022\n\n\002ip\030\t \001(\t\022\016\n\006ipmask\030\n \001(\t\022\014"
     "\n\004dns1\030\013 \001(\t\022\014\n\004dns2\030\014 \001(\t\022\017\n\007gateway\030\r "
     "\001(\t\022\016\n\006ipDhcp\030\016 \001(\010\022\021\n\tkeyStatus\030\017 \003(\010\022\r"
-    "\n\005keyno\030\020 \001(\005*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014CO"
-    "MMON_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n"
-    "\tcmd_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWr"
-    "iteConfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUn"
-    "registerBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020c"
-    "mdClearAuthCode\020\006b\006proto3", 545);
+    "\n\005keyno\030\020 \001(\005\022\020\n\010wifiName\030\021 \001(\t\022\020\n\010wifiP"
+    "ass\030\022 \001(\t*6\n\tErrorCode\022\006\n\002OK\020\000\022\020\n\014COMMON"
+    "_ERROR\020\001\022\017\n\013UNKNOWN_CMD\020d*\221\001\n\003Cmd\022\r\n\tcmd"
+    "_dummy\020\000\022\021\n\rcmdReadConfig\020\001\022\022\n\016cmdWriteC"
+    "onfig\020\002\022\022\n\016cmdRegisterBox\020\003\022\024\n\020cmdUnregi"
+    "sterBox\020\004\022\024\n\020cmdUnregisterKey\020\005\022\024\n\020cmdCl"
+    "earAuthCode\020\006b\006proto3", 581);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "adb_config_demo.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_adb_5fconfig_5fdemo_2eproto);
@@ -206,6 +209,8 @@ const int Config::kGatewayFieldNumber;
 const int Config::kIpDhcpFieldNumber;
 const int Config::kKeyStatusFieldNumber;
 const int Config::kKeynoFieldNumber;
+const int Config::kWifiNameFieldNumber;
+const int Config::kWifiPassFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Config::Config()
@@ -238,6 +243,8 @@ void Config::SharedCtor() {
   dns1_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns2_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   gateway_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifiname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifipass_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&errorcode_, 0, reinterpret_cast<char*>(&keyno_) -
     reinterpret_cast<char*>(&errorcode_) + sizeof(keyno_));
   _cached_size_ = 0;
@@ -260,6 +267,8 @@ void Config::SharedDtor() {
   dns1_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns2_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   gateway_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifiname_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifipass_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void Config::SetCachedSize(int size) const {
@@ -318,6 +327,8 @@ void Config::Clear() {
   dns1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   dns2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   gateway_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifiname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wifipass_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 
 #undef ZR_HELPER_
 #undef ZR_
@@ -595,6 +606,40 @@ bool Config::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(138)) goto parse_wifiName;
+        break;
+      }
+
+      // optional string wifiName = 17;
+      case 17: {
+        if (tag == 138) {
+         parse_wifiName:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_wifiname()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->wifiname().data(), this->wifiname().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.wifiName"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(146)) goto parse_wifiPass;
+        break;
+      }
+
+      // optional string wifiPass = 18;
+      case 18: {
+        if (tag == 146) {
+         parse_wifiPass:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_wifipass()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->wifipass().data(), this->wifipass().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "com.erobbing.adb_config_demo.Config.wifiPass"));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -763,6 +808,26 @@ void Config::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(16, this->keyno(), output);
   }
 
+  // optional string wifiName = 17;
+  if (this->wifiname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->wifiname().data(), this->wifiname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.wifiName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      17, this->wifiname(), output);
+  }
+
+  // optional string wifiPass = 18;
+  if (this->wifipass().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->wifipass().data(), this->wifipass().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.wifiPass");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      18, this->wifipass(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:com.erobbing.adb_config_demo.Config)
 }
 
@@ -925,6 +990,28 @@ void Config::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(16, this->keyno(), target);
   }
 
+  // optional string wifiName = 17;
+  if (this->wifiname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->wifiname().data(), this->wifiname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.wifiName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        17, this->wifiname(), target);
+  }
+
+  // optional string wifiPass = 18;
+  if (this->wifipass().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->wifipass().data(), this->wifipass().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "com.erobbing.adb_config_demo.Config.wifiPass");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        18, this->wifipass(), target);
+  }
+
   // @@protoc_insertion_point(serialize_to_array_end:com.erobbing.adb_config_demo.Config)
   return target;
 }
@@ -1034,6 +1121,20 @@ size_t Config::ByteSizeLong() const {
         this->keyno());
   }
 
+  // optional string wifiName = 17;
+  if (this->wifiname().size() > 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->wifiname());
+  }
+
+  // optional string wifiPass = 18;
+  if (this->wifipass().size() > 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->wifipass());
+  }
+
   // repeated bool keyStatus = 15;
   {
     size_t data_size = 0;
@@ -1140,6 +1241,14 @@ void Config::UnsafeMergeFrom(const Config& from) {
   if (from.keyno() != 0) {
     set_keyno(from.keyno());
   }
+  if (from.wifiname().size() > 0) {
+
+    wifiname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.wifiname_);
+  }
+  if (from.wifipass().size() > 0) {
+
+    wifipass_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.wifipass_);
+  }
 }
 
 void Config::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1182,6 +1291,8 @@ void Config::InternalSwap(Config* other) {
   std::swap(ipdhcp_, other->ipdhcp_);
   keystatus_.UnsafeArenaSwap(&other->keystatus_);
   std::swap(keyno_, other->keyno_);
+  wifiname_.Swap(&other->wifiname_);
+  wifipass_.Swap(&other->wifipass_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1765,6 +1876,94 @@ void Config::set_keyno(::google::protobuf::int32 value) {
   
   keyno_ = value;
   // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.keyno)
+}
+
+// optional string wifiName = 17;
+void Config::clear_wifiname() {
+  wifiname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::wifiname() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.wifiName)
+  return wifiname_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_wifiname(const ::std::string& value) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.wifiName)
+}
+void Config::set_wifiname(const char* value) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.wifiName)
+}
+void Config::set_wifiname(const char* value, size_t size) {
+  
+  wifiname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.wifiName)
+}
+::std::string* Config::mutable_wifiname() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.wifiName)
+  return wifiname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_wifiname() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.wifiName)
+  
+  return wifiname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_wifiname(::std::string* wifiname) {
+  if (wifiname != NULL) {
+    
+  } else {
+    
+  }
+  wifiname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifiname);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.wifiName)
+}
+
+// optional string wifiPass = 18;
+void Config::clear_wifipass() {
+  wifipass_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Config::wifipass() const {
+  // @@protoc_insertion_point(field_get:com.erobbing.adb_config_demo.Config.wifiPass)
+  return wifipass_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_wifipass(const ::std::string& value) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+void Config::set_wifipass(const char* value) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+void Config::set_wifipass(const char* value, size_t size) {
+  
+  wifipass_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:com.erobbing.adb_config_demo.Config.wifiPass)
+}
+::std::string* Config::mutable_wifipass() {
+  
+  // @@protoc_insertion_point(field_mutable:com.erobbing.adb_config_demo.Config.wifiPass)
+  return wifipass_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Config::release_wifipass() {
+  // @@protoc_insertion_point(field_release:com.erobbing.adb_config_demo.Config.wifiPass)
+  
+  return wifipass_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Config::set_allocated_wifipass(::std::string* wifipass) {
+  if (wifipass != NULL) {
+    
+  } else {
+    
+  }
+  wifipass_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifipass);
+  // @@protoc_insertion_point(field_set_allocated:com.erobbing.adb_config_demo.Config.wifiPass)
 }
 
 inline const Config* Config::internal_default_instance() {
