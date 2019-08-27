@@ -24,6 +24,7 @@ import com.erobbing.tcpsmartkey.service.codec.MsgEncoder;
 import com.erobbing.tcpsmartkey.util.BCD8421Operater;
 import com.erobbing.tcpsmartkey.util.BitOperator;
 import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
+import com.erobbing.tcpsmartkey.util.ShellUtils;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -70,16 +71,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String LED_RED_08 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-08/brightness";
     private static final String LED_RED_09 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-09/brightness";
     private static final String LED_RED_10 = "/sys/devices/soc.0/gpio-leds.70/leds/led-r-10/brightness";
-    private static final String LED_GREEN_01 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-01/brightness";
-    private static final String LED_GREEN_02 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-02/brightness";
-    private static final String LED_GREEN_03 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-03/brightness";
-    private static final String LED_GREEN_04 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-04/brightness";
-    private static final String LED_GREEN_05 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-05/brightness";
-    private static final String LED_GREEN_06 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-06/brightness";
-    private static final String LED_GREEN_07 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-07/brightness";
-    private static final String LED_GREEN_08 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-08/brightness";
-    private static final String LED_GREEN_09 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-09/brightness";
-    private static final String LED_GREEN_10 = "/sys/devices/soc.0/gpio-leds.70/leds/led-g-10/brightness";
+    private static final String LED_GREEN_01 = "/sys/class/leds/led-g-01/brightness";
+    private static final String LED_GREEN_02 = "/sys/class/leds/led-g-02/brightness";
+    private static final String LED_GREEN_03 = "/sys/class/leds/led-g-03/brightness";
+    private static final String LED_GREEN_04 = "/sys/class/leds/led-g-04/brightness";
+    private static final String LED_GREEN_05 = "/sys/class/leds/led-g-05/brightness";
+    private static final String LED_GREEN_06 = "/sys/class/leds/led-g-06/brightness";
+    private static final String LED_GREEN_07 = "/sys/class/leds/led-g-07/brightness";
+    private static final String LED_GREEN_08 = "/sys/class/leds/led-g-08/brightness";
+    private static final String LED_GREEN_09 = "/sys/class/leds/led-g-09/brightness";
+    private static final String LED_GREEN_10 = "/sys/class/leds/led-g-10/brightness";
 
     private static final String SWITCH_01_PATH = "/sys/class/gpio_switch/switch_ct_01";
     private static final String SWITCH_02_PATH = "/sys/class/gpio_switch/switch_ct_02";
@@ -220,8 +221,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear1(View view) {
-        MyTtsService.playTextInterval(this, 10000, 3, "展讯发布的版本和比较大的文件会通过下面的FTP发布");
+        //MyTtsService.playTextInterval(this, 10000, 3, "展讯发布的版本和比较大的文件会通过下面的FTP发布");
         //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
+        /*ledSeriesCtrl(LED_GREEN_01, true);
+        ledSeriesCtrl(LED_GREEN_02, true);
+        ledSeriesCtrl(LED_GREEN_03, true);
+        ledSeriesCtrl(LED_GREEN_04, true);
+        ledSeriesCtrl(LED_GREEN_05, true);
+        ledSeriesCtrl(LED_GREEN_06, true);
+        ledSeriesCtrl(LED_GREEN_07, true);
+        ledSeriesCtrl(LED_GREEN_08, true);
+        ledSeriesCtrl(LED_GREEN_09, true);
+        ledSeriesCtrl(LED_GREEN_10, true);*/
     }
 
     private void sleep(long time) {
@@ -234,19 +245,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void clear2(View view) {
         textView_receive.setText("");
-        /*ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_01", false);
+        ShellUtils.execCommand("echo on > /sys/class/gpio_switch/switch_ct_02", false);
         Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true).successMsg);
         //Log.e("====", "============key_st=" + ShellUtils.execCommand("cat /sys/class/leds/lcd-backlight/brightness", false, true).successMsg);
         //key_st=CommandResult{result=0, successMsg='144', errorMsg=''}
         //ShellUtils.execCommand("cat /sys/bus/i2c/devices/6-005b/mcu/key_st", false, true);
-        ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_01", false);
-        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());*/
-        MyTtsService.playTextInterval(this, 10000, 3, "进程独自占用的物理内存");
+        motor01StatusCtrl(true);
+        ShellUtils.execCommand("echo off > /sys/class/gpio_switch/switch_ct_02", false);
+        Log.e("====", "=======main-allKeysIdRead()=" + allKeysIdRead() + "----allKeysAuthCodeRead=" + allKeysAuthCodeRead());
+        //MyTtsService.playTextInterval(this, 10000, 3, "进程独自占用的物理内存");
+        MyTtsService.startWithPlay(this, "二号钥匙扣弹出");
+        /*ledSeriesCtrl(LED_GREEN_01, false);
+        ledSeriesCtrl(LED_GREEN_02, false);
+        ledSeriesCtrl(LED_GREEN_03, false);
+        ledSeriesCtrl(LED_GREEN_04, false);
+        ledSeriesCtrl(LED_GREEN_05, false);
+        ledSeriesCtrl(LED_GREEN_06, false);
+        ledSeriesCtrl(LED_GREEN_07, false);
+        ledSeriesCtrl(LED_GREEN_08, false);
+        ledSeriesCtrl(LED_GREEN_09, false);
+        ledSeriesCtrl(LED_GREEN_10, false);*/
     }
 
     public void motor01StatusCtrl(boolean on) {
         try {
-            FileWriter command = new FileWriter("/sys/class/gpio_switch/motor_ct_01");
+            FileWriter command = new FileWriter("/sys/class/gpio_switch/motor_ct_02");
             if (on) {
                 command.write("on");
             } else {

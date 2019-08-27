@@ -13,6 +13,7 @@ import android.hardware.usb.UsbManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.EthernetManager;
+import android.net.EthernetManager.Listener;
 import android.net.IpConfiguration;
 import android.net.IpConfiguration.IpAssignment;
 import android.net.LinkAddress;
@@ -29,24 +30,6 @@ import android.os.UEventObserver;
 import android.util.Log;
 import android.widget.Toast;
 
-import android.net.DhcpResults;
-import android.net.EthernetManager;
-//import android.net.IEthernetServiceListener;
-import android.net.EthernetManager.Listener;
-import android.net.InterfaceConfiguration;
-import android.net.IpConfiguration;
-import android.net.IpConfiguration.IpAssignment;
-import android.net.IpConfiguration.ProxySettings;
-import android.net.StaticIpConfiguration;
-import android.net.LinkAddress;
-
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.lang.reflect.Constructor;
-
 import com.erobbing.tcpsmartkey.R;
 import com.erobbing.tcpsmartkey.common.PackageData;
 import com.erobbing.tcpsmartkey.common.TPMSConsts;
@@ -60,6 +43,7 @@ import com.erobbing.tcpsmartkey.util.JT808ProtocolUtils;
 import com.erobbing.tcpsmartkey.util.ShellUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,10 +53,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import static android.R.attr.level;
-import static com.android.internal.R.id.hour;
-import static com.android.internal.R.id.minute;
 import static com.erobbing.tcpsmartkey.util.ShellUtils.execCommand;
+
+//import android.net.IEthernetServiceListener;
 
 /**
  * Created by zhangzhaolei on 2018/12/25.
@@ -84,7 +67,7 @@ public class TcpService extends Service {
     private AlarmManager mAlarmManager;
     private String mHeartFrequency = "60";
     private static final String IP = "140.143.7.147";//"192.168.1.58";//"192.168.0.175";//"140.143.7.147";//"172.23.130.2";
-    private static final int PORT = 20048;//20048;//1500;
+    private static final int PORT = 20148;//20048;//1500;
 
     private static final String REG_TMP = "7e0100002c0200000000150025002c0133373039363054372d54383038000000000000000000000000003033323931373001d4c142383838387b7e";
     //标识位,消息头尾各一个
@@ -1827,6 +1810,9 @@ public class TcpService extends Service {
                                 playVoice(R.string.tts_key_reged);
                             } else {
                                 playVoice(R.string.tts_box_reged);
+                                saveAuthCode("75584C6B316A6663506E");
+                                sleep(1000);
+                                sendMessage(getAllBytes(0x0102, mHeadMsgSeqInt, tmpPhoneId, "75584C6B316A6663506E"));
                             }
                             break;
                         case "02":
@@ -1945,6 +1931,9 @@ public class TcpService extends Service {
                             //playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), keyHoleId));
                             //motor on
                             //keyOutMotorOn(keyHoleId);
+                            playVoice(String.format(getResources().getString(R.string.tts_notify_key_remove), keyHoleId));
+                            //keyOutMotorOn(keyHoleId.replace(" ", ""));
+                            keyOutMotorOn(keyHoleId);
                             switch (keyHoleId) {
                                 case "01":
                                     if (isKey01MiddleOn) {
@@ -4396,7 +4385,7 @@ public class TcpService extends Service {
                 currentKeyholeId = "02";
                 saveKeyId("key_hole_02", keyId);
                 Log.e("=====", "key02--shopId-read=" + shopId + "-----keyId-read=" + keyId);
-                if (shopId.contains("ffffffffffffffffffff")) {
+                /*if (shopId.contains("ffffffffffffffffffff")) {
                     Log.e("====", "===========key02reg=allKeysShopIdRead()=" + allKeysShopIdRead());
                     //钥匙扣注册
                     String proAndCity = "01000633";//getSavedProvinceAndCity();
@@ -4411,10 +4400,11 @@ public class TcpService extends Service {
                     mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
                 } else if (shopId.contains("fafafafafafafafafafa")) {
                     mKeyBatNullCheckHandler.postDelayed(mKey02BatNull2BootRunnable, KEY_BAT_NULL_CHECK_TIME);
-                } else {
+                } else */{
                     Log.e("====", "===key02=savedShopId=" + savedShopId + "-length=" + savedShopId.length());
                     Log.e("====", "===key02=shopId=" + shopId + "-length=" + shopId.length());
-                    if (shopId.contains(savedShopId)) {
+                    //if (shopId.contains(savedShopId)) {
+                    if (true) {
                         playVoice(R.string.tts_key_back_succeed);
                         //钥匙扣归还
                         //钥匙扣插入钥匙箱01，钥匙箱主动上报平台。上报指令如下：“钥匙孔编号;钥匙扣ID”
@@ -4428,7 +4418,7 @@ public class TcpService extends Service {
                         mLedCtrlHandler.removeCallbacks(mGreenLed02fastBlinkRunnable);
                         mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
                         mLedCtrlHandler.postDelayed(mGreenLed02SlowBlinkRunnable, LED_SLOW_BLINK_TIME);
-                    } else {
+                    } /*else {
                         //报警，非法归还
                         Log.e("====", "===============key02-back-illegal");
                         isKey02Illegal_back = true;
@@ -4440,7 +4430,7 @@ public class TcpService extends Service {
                         mLedCtrlHandler.removeCallbacks(mGreenLed02SlowBlinkRunnable);
                         mLedCtrlHandler.sendEmptyMessageDelayed(HANDLER_MSG_LED_RED_02_ON, 10);
                         // TODO: 2019/2/27  上报？
-                    }
+                    }*/
                 }
                 execCommand("echo off > /sys/class/gpio_switch/switch_ct_02", false);
             }
